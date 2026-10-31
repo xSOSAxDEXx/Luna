@@ -177,6 +177,12 @@ especially) than in the native app. Step 3 tests this on real devices and
 documents the actual limits here. The app will show a gentle tip on the web
 suggesting the installed app for overnight use.
 
+iPhone testing currently uses the web app in Safari (no Apple Developer
+account yet); the checklist is in
+[`docs/iphone-web-testing.md`](./docs/iphone-web-testing.md). The Pages
+build shows the Playback check log for testing; **remove
+`EXPO_PUBLIC_DIAGNOSTICS` from `web-pages.yml` before launch.**
+
 Lock-screen info uses the browser's Media Session API (checked in Chromium).
 Some browsers leave a tiny gap when an `<audio>` element loops; step 3
 checks this on iOS Safari and Android Chrome.

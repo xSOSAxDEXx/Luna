@@ -41,6 +41,9 @@ jobs:
         env:
           # Project sites live under /<repo>/, e.g. /Luna.
           EXPO_BASE_URL: /${{ github.event.repository.name }}
+          # The Pages site is a test site for now: show Settings → Playback
+          # check so phone browsers can be tested. Remove before launch.
+          EXPO_PUBLIC_DIAGNOSTICS: '1'
         run: npm run build:web
 
       - uses: actions/configure-pages@v5

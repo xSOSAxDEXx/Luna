@@ -1,0 +1,44 @@
+# iPhone testing (web app in Safari)
+
+Until there's an Apple Developer account for a native iPhone build, the
+iPhone runs the **web app**: https://xsosaxdexx.github.io/Luna/
+
+These tests measure how far Safari lets a web app play overnight with the
+screen locked. Phone browsers are stricter than apps, so some "fails" are
+expected: they become the documented limits in the README and the reason
+for the in-app tip suggesting the installed app.
+
+## Set up
+
+1. Open the link in **Safari** (not Chrome; on iPhone only Safari can add
+   a web app to the Home Screen properly).
+2. Tap **Share** → **Add to Home Screen** → **Add**.
+3. Open **Luna Beats** from the Home Screen icon (not from Safari).
+4. Settings → **Playback check** → **Clear**.
+
+Note your iPhone model and iOS version (Settings → General → About).
+
+## The tests
+
+| #   | Test                                | Steps                                                                                                                  | What to note                                                                                     |
+| --- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| W1  | **Plays at all**                    | Tap **Brown noise**, then **I understand**.                                                                            | Does sound start? Is the safe-sleep reminder shown?                                              |
+| W2  | **Timer, screen on**                | Settings → **Start 2-minute test**. Keep the screen on.                                                                | Fades and stops at about 2:00?                                                                   |
+| W3  | **Timer, screen locked (key test)** | **Start 2-minute test**, lock the phone straight away, wait 3 minutes.                                                 | Does sound keep playing when locked? Does it stop at about 2:00, or keep going until you unlock? |
+| W4  | **Long play, locked**               | Start a sound, tap **Until I stop**, lock for 15 minutes.                                                              | Does it play the whole time, or stop after a while? Roughly when?                                |
+| W5  | **Lock-screen controls**            | Start a sound and lock the phone.                                                                                      | Does the lock screen show "Luna Beats" / the sound? Do pause and play work there?                |
+| W6  | **Switching apps**                  | Play a sound, open another app for a minute, come back.                                                                | Keeps playing in the background?                                                                 |
+| W7  | **Silent switch**                   | Flip the ring/silent switch to silent, then play.                                                                      | Does it still play? (Safari often goes quiet on silent.)                                         |
+| W8  | **Offline**                         | Open it once online, then turn on airplane mode, close it from the app switcher, reopen from the Home Screen and play. | Does it open and play with no internet?                                                          |
+| W9  | **Mix and shuffle**                 | Create → Mix with 3 sounds; then Shuffle next to Noise.                                                                | Do all layers play together? Does shuffle play?                                                  |
+| W10 | **Seamless loop**                   | Play **White noise** for a minute.                                                                                     | Any click or gap around each 30-second mark?                                                     |
+
+When you're done: Settings → Playback check → **Share log**, and send it
+along with your notes for each test.
+
+## Reading the log
+
+Same as Android (see `android-testing.md`). On iPhone the key question is
+whether `heartbeats` keep arriving while the screen is locked, and whether
+`finish` happens before `foreground` (stopped on time while locked) or
+only after it (Safari paused the app until you came back).
