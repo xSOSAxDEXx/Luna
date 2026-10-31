@@ -6,19 +6,23 @@ import { formatRemaining, progress } from '@/audio/timer';
 import { AppText } from '@/components/AppText';
 import { ChevronDownIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/icons';
 import { Notice } from '@/components/Notice';
+import { SafeSleepReminder } from '@/components/SafeSleepReminder';
 import { QuickAddButtons } from '@/components/QuickAddButtons';
 import { WebTip } from '@/components/WebTip';
 import { Screen } from '@/components/Screen';
 import { TimerRing } from '@/components/TimerRing';
 import { VolumeSlider } from '@/components/VolumeSlider';
 import { useNow } from '@/hooks/useNow';
+import { useSafeSleepReminder } from '@/safety/safeSleep';
 import { useSettings } from '@/store/settings';
 import { colors, MIN_TAP, space } from '@/theme';
 import { audioFade } from '@/theme/motion';
 
 /** Now playing: the timer ring, quick-add buttons and controls. */
 export default function PlayerScreen() {
-  const { status, sound, timer, pausedExternally } = usePlayer();
+  const { status, sound, timer, pausedExternally, sessionId } = usePlayer();
+  const acknowledgedSession = useSafeSleepReminder((s) => s.acknowledgedSession);
+  const acknowledgeSafety = useSafeSleepReminder((s) => s.acknowledge);
   const volume = useSettings((s) => s.volume);
   const setVolume = useSettings((s) => s.setVolume);
   const now = useNow(1000, status === 'playing');
@@ -30,7 +34,7 @@ export default function PlayerScreen() {
 
   if (!sound || !timer || status === 'idle') {
     return (
-      <Screen scroll={false} edges={['top', 'bottom']}>
+      <Screen edges={['top', 'bottom']}>
         <CloseButton onPress={close} />
         <View style={styles.empty}>
           <AppText variant="title">Nothing playing</AppText>
@@ -48,6 +52,9 @@ export default function PlayerScreen() {
     timer.endsAt - now <= audioFade.timerEndMs &&
     timer.endsAt - now > 0;
   const label = finished ? 'Sleep well' : formatRemaining(timer, now);
+  // Shown every time a sound starts, until acknowledged. The sound is already
+  // playing; the reminder takes the ring's place so it can't be missed.
+  const showSafetyReminder = !finished && acknowledgedSession !== sessionId;
 
   const onMainButton = () => {
     if (finished) player.start(sound);
@@ -56,7 +63,7 @@ export default function PlayerScreen() {
   };
 
   return (
-    <Screen scroll={false} edges={['top', 'bottom']}>
+    <Screen edges={['top', 'bottom']}>
       <View style={styles.topRow}>
         <CloseButton onPress={close} />
         <View style={styles.titleWrap}>
@@ -68,26 +75,30 @@ export default function PlayerScreen() {
       </View>
 
       <View style={styles.ringWrap}>
-        <TimerRing size={ringSize} progress={finished ? 0 : progress(timer, now)}>
-          <AppText
-            // Big digits for "12 min"; calmer, smaller words for everything else.
-            variant={/^\d/.test(label) ? 'timer' : 'title'}
-            style={styles.ringText}
-            accessibilityLiveRegion="polite">
-            {label}
-          </AppText>
-          <AppText variant="caption" tone="secondary">
-            {finished
-              ? 'The sound has faded out'
-              : fading
-                ? 'Drifting off…'
-                : status === 'paused'
-                  ? 'Paused'
-                  : timer.kind === 'untilStop'
-                    ? 'No timer'
-                    : 'left'}
-          </AppText>
-        </TimerRing>
+        {showSafetyReminder ? (
+          <SafeSleepReminder onAcknowledge={() => acknowledgeSafety(sessionId)} />
+        ) : (
+          <TimerRing size={ringSize} progress={finished ? 0 : progress(timer, now)}>
+            <AppText
+              // Big digits for "12 min"; calmer, smaller words for everything else.
+              variant={/^\d/.test(label) ? 'timer' : 'title'}
+              style={styles.ringText}
+              accessibilityLiveRegion="polite">
+              {label}
+            </AppText>
+            <AppText variant="caption" tone="secondary">
+              {finished
+                ? 'The sound has faded out'
+                : fading
+                  ? 'Drifting off…'
+                  : status === 'paused'
+                    ? 'Paused'
+                    : timer.kind === 'untilStop'
+                      ? 'No timer'
+                      : 'left'}
+            </AppText>
+          </TimerRing>
+        )}
       </View>
 
       {/* Controls sit low on the screen, within thumb reach. */}
@@ -98,7 +109,7 @@ export default function PlayerScreen() {
             body="A call or another app needed the sound. Tap play when you're ready."
           />
         ) : null}
-        {playing ? <WebTip /> : null}
+        {playing && !showSafetyReminder ? <WebTip /> : null}
         <QuickAddButtons
           onAdd={(m) => player.addMinutes(m)}
           onUntilStop={() => player.playUntilStopped()}
@@ -167,7 +178,15 @@ const styles = StyleSheet.create({
     marginLeft: -space.md,
   },
   empty: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: space.sm },
-  ringWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', minHeight: 180 },
+  // Grows into spare space but never shrinks below its content, so the
+  // safe-sleep reminder and controls can't overlap on short screens.
+  ringWrap: {
+    flexGrow: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'stretch',
+    minHeight: 180,
+  },
   ringText: { textAlign: 'center', paddingHorizontal: space.lg },
   controls: { gap: space.lg },
   transport: {

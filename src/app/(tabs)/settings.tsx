@@ -3,6 +3,7 @@ import { Pressable, Share, StyleSheet, View } from 'react-native';
 
 import { player } from '@/audio/player';
 import { AppText } from '@/components/AppText';
+import { SafeSleepReminder } from '@/components/SafeSleepReminder';
 import { Screen } from '@/components/Screen';
 import { getSound } from '@/data/sounds';
 import {
@@ -21,7 +22,7 @@ export default function SettingsScreen() {
       <AppText variant="title" accessibilityRole="header">
         Settings
       </AppText>
-      <AppText tone="secondary">Nothing to adjust yet.</AppText>
+      <SafeSleepReminder />
       {DIAGNOSTICS_ENABLED ? <PlaybackCheck /> : null}
     </Screen>
   );

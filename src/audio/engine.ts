@@ -29,6 +29,8 @@ export type PlayerSnapshot = {
    * lock screen). The player gently offers to resume.
    */
   pausedExternally: boolean;
+  /** Increases every time a sound is started, so screens can react to each new start. */
+  sessionId: number;
 };
 
 export type EngineLog = (event: string, detail?: Record<string, unknown>) => void;
@@ -83,6 +85,7 @@ export class PlayerEngine {
     timer: null,
     volume: DEFAULT_VOLUME,
     pausedExternally: false,
+    sessionId: 0,
   };
 
   private readonly createOutput: CreateOutput;
@@ -134,7 +137,13 @@ export class PlayerEngine {
 
     this.fadeInFrom = now;
     this.lastTickAt = now;
-    this.update({ status: 'playing', sound, timer, pausedExternally: false });
+    this.update({
+      status: 'playing',
+      sound,
+      timer,
+      pausedExternally: false,
+      sessionId: this.snapshot.sessionId + 1,
+    });
     this.log('start', { sound: sound.id, minutes });
     this.startTicker();
     this.tick();

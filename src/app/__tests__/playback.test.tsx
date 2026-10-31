@@ -2,6 +2,7 @@ import { fireEvent, screen, within } from '@testing-library/react-native';
 import { renderRouter } from 'expo-router/testing-library';
 
 import { player } from '@/audio/player';
+import { SAFE_SLEEP, useSafeSleepReminder } from '@/safety/safeSleep';
 import { useSettings } from '@/store/settings';
 
 import LibraryScreen from '../(tabs)/index';
@@ -38,7 +39,13 @@ afterEach(() => {
   player.stop();
   fakePlayers().length = 0;
   useSettings.setState({ favorites: [], volume: 0.35 });
+  useSafeSleepReminder.setState({ acknowledgedSession: 0 });
 });
+
+/** Acknowledges the safe-sleep reminder so the timer ring is shown. */
+async function acknowledgeSafety() {
+  await fireEvent.press(await screen.findByRole('button', { name: 'I understand' }));
+}
 
 describe('one tap to calm', () => {
   it('plays a sound on a 10-minute timer as soon as its card is tapped', async () => {
@@ -57,12 +64,14 @@ describe('one tap to calm', () => {
     );
 
     expect(await screen.findByRole('header', { name: 'Brown noise' })).toBeOnTheScreen();
+    await acknowledgeSafety();
     expect(screen.getByText('10 min')).toBeOnTheScreen();
   });
 
   it('adds time with the quick-add buttons and can drop the timer', async () => {
     await renderApp();
     await fireEvent.press(screen.getByRole('button', { name: 'Pink noise' }));
+    await acknowledgeSafety();
     await screen.findByText('10 min');
 
     await fireEvent.press(screen.getByRole('button', { name: 'Add 5 minutes' }));
@@ -79,6 +88,7 @@ describe('one tap to calm', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'White noise' }));
     const [audio] = fakePlayers();
 
+    await acknowledgeSafety();
     await fireEvent.press(await screen.findByRole('button', { name: 'Pause' }));
     expect(audio.playing).toBe(false);
     expect(await screen.findByText('Paused')).toBeOnTheScreen();
@@ -109,5 +119,37 @@ describe('one tap to calm', () => {
     await renderApp();
     const rain = screen.getByRole('button', { name: 'Rain, placeholder sound' });
     expect(within(rain).getByText('Placeholder')).toBeOnTheScreen();
+  });
+
+  it('shows the safe-sleep reminder every time a sound starts, while it plays', async () => {
+    await renderApp();
+    await fireEvent.press(screen.getByRole('button', { name: 'White noise' }));
+
+    // The sound is already playing behind the reminder: one tap to calm.
+    expect(fakePlayers()[0].playing).toBe(true);
+    expect(await screen.findByText(SAFE_SLEEP.title)).toBeOnTheScreen();
+    for (const point of SAFE_SLEEP.points) expect(screen.getByText(point)).toBeOnTheScreen();
+    expect(screen.queryByText('10 min')).toBeNull();
+
+    await acknowledgeSafety();
+    expect(screen.queryByText(SAFE_SLEEP.title)).toBeNull();
+    expect(screen.getByText('10 min')).toBeOnTheScreen();
+
+    // Pausing and resuming the same sound doesn't bring it back...
+    await fireEvent.press(screen.getByRole('button', { name: 'Pause' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Play' }));
+    expect(screen.queryByText(SAFE_SLEEP.title)).toBeNull();
+
+    // ...but starting a sound again does.
+    await fireEvent.press(screen.getByRole('button', { name: 'Close player' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Brown noise' }));
+    expect(await screen.findByText(SAFE_SLEEP.title)).toBeOnTheScreen();
+  });
+
+  it('keeps the safe-sleep guidance in Settings, with no way to turn it off', async () => {
+    await renderApp();
+    await fireEvent.press(screen.getByRole('button', { name: 'Settings' }));
+    expect(await screen.findByText(SAFE_SLEEP.title)).toBeOnTheScreen();
+    expect(screen.getByText(SAFE_SLEEP.points[1])).toBeOnTheScreen();
   });
 });

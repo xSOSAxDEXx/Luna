@@ -78,6 +78,12 @@ If something in Fuel conflicts with this doc, ask me before deviating.
 - Default to a low starting volume.
 - A one-time, kind tip in onboarding and in Settings: keep the device across the room from the crib rather than right next to it, and at a soft volume. Optional "soft volume cap" toggle, on by default.
 
+### 3.9 Safe-sleep reminder (required — child safety)
+- Every time a sound is started, show a safe-sleep reminder on the player: keep the phone a safe distance from the baby (across the room, never in or on the crib, bassinet or bed), and never leave a phone or charger plugged in near the baby (cord strangulation risk; charging phones get hot). Keep the volume soft.
+- The sound starts immediately (one tap to calm); the reminder sits in place of the timer ring until the parent taps "I understand".
+- It must never be removable or switched off in settings. The same guidance is always visible in Settings.
+- Treat child safety as a hard requirement: any change that would weaken or hide this reminder needs my explicit approval.
+
 ## 4. Design — calm, gentle, reassuring
 
 Baby sleep is stressful. The app should feel like a deep breath.
