@@ -7,19 +7,21 @@ Settings → Playback check in test builds.
 
 Test build: **android-preview-2** (commit `eeb13b5`), 31 Oct 2026.
 
-| #   | Test                   | Result    | Evidence                                                                                                                                                                                     |
-| --- | ---------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1/4 | Timer with screen off  | ✅ Pass   | 10-min run finished at 13:19:39 while backgrounded (app reopened 13:19:42), **195 ms** late. 2-min runs: 78 ms and 5 ms late; the 30 s fade-out ran while backgrounded.                      |
-| —   | Background heartbeats  | ✅ Pass   | ~2 per second in every background period (e.g. 538 in 254 s), so the timer and fades keep running with JS timers paused.                                                                     |
-| 3   | Long play, screen off  | 🟡 Partly | 254 s of continuous background play in the log, past Android's ~3-minute limit. A full 15+ minute run on "Until I stop" still to be confirmed.                                               |
-| 6   | Phone call             | ✅ Pass   | Sound paused for the call, **resumed by itself** afterwards, and the timer still ended on schedule ("Sleep well" on reopening). Auto-resume kept as the intended behaviour (CLAUDE.md §3.5). |
-| —   | Outside pause handling | ✅ Pass   | An outside pause at 13:11:59 was mirrored (`external-pause`); the 9 s paused were added back to the timer exactly.                                                                           |
-| 2   | Lock-screen controls   | ⏳ To do  |                                                                                                                                                                                              |
-| 5   | Another app's audio    | ⏳ To do  |                                                                                                                                                                                              |
-| 7   | Silent mode            | ⏳ To do  |                                                                                                                                                                                              |
-| 8   | Offline                | ⏳ To do  |                                                                                                                                                                                              |
-| 9   | Battery saver          | ⏳ To do  |                                                                                                                                                                                              |
-| 10  | Seamless loop          | ⏳ To do  |                                                                                                                                                                                              |
+| #   | Test                   | Result  | Evidence                                                                                                                                                                                     |
+| --- | ---------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1/4 | Timer with screen off  | ✅ Pass | 10-min run finished at 13:19:39 while backgrounded (app reopened 13:19:42), **195 ms** late. 2-min runs: 78 ms and 5 ms late; the 30 s fade-out ran while backgrounded.                      |
+| —   | Background heartbeats  | ✅ Pass | ~2 per second in every background period (e.g. 538 in 254 s), so the timer and fades keep running with JS timers paused.                                                                     |
+| 3   | Long play, screen off  | ✅ Pass | 15+ minutes on "Until I stop" with the screen locked, no dropouts (tester report). Log also shows 254 s continuous, past Android's ~3-minute limit.                                          |
+| 6   | Phone call             | ✅ Pass | Sound paused for the call, **resumed by itself** afterwards, and the timer still ended on schedule ("Sleep well" on reopening). Auto-resume kept as the intended behaviour (CLAUDE.md §3.5). |
+| —   | Outside pause handling | ✅ Pass | An outside pause at 13:11:59 was mirrored (`external-pause`); the 9 s paused were added back to the timer exactly.                                                                           |
+| 2   | Lock-screen controls   | ✅ Pass | Tester report.                                                                                                                                                                               |
+| 5   | Another app's audio    | ✅ Pass | Tester report.                                                                                                                                                                               |
+| 7   | Silent mode            | ✅ Pass | Tester report.                                                                                                                                                                               |
+| 8   | Offline                | ✅ Pass | Tester report.                                                                                                                                                                               |
+| 9   | Battery saver          | ✅ Pass | Tester report.                                                                                                                                                                               |
+| 10  | Seamless loop          | ✅ Pass | Tester report.                                                                                                                                                                               |
+
+**Android: all tests pass on this phone.** Step 3 is complete for Android.
 
 ## Not yet tested
 
