@@ -8,6 +8,8 @@ import { AppText } from './AppText';
 type Props = {
   value: number;
   onChange: (value: number) => void;
+  /** Visible label and screen-reader name, e.g. "Rain" for a mix layer. */
+  label?: string;
 };
 
 const THUMB = 28;
@@ -17,7 +19,7 @@ const STEP = 0.05;
  * Volume, 0..1. Drag or tap anywhere on the track; the whole row is a 56px
  * touch target. Screen readers get an adjustable control with up/down steps.
  */
-export function VolumeSlider({ value, onChange }: Props) {
+export function VolumeSlider({ value, onChange, label = 'Volume' }: Props) {
   const [width, setWidth] = useState(0);
   const widthRef = useRef(0);
 
@@ -33,8 +35,8 @@ export function VolumeSlider({ value, onChange }: Props) {
 
   return (
     <View style={styles.row}>
-      <AppText variant="caption" tone="secondary" style={styles.label}>
-        Volume
+      <AppText variant="caption" tone="secondary" style={styles.label} numberOfLines={2}>
+        {label}
       </AppText>
       <View
         style={styles.track}
@@ -49,7 +51,7 @@ export function VolumeSlider({ value, onChange }: Props) {
         onResponderMove={setFromTouch}
         accessible
         accessibilityRole="adjustable"
-        accessibilityLabel="Volume"
+        accessibilityLabel={label === 'Volume' ? 'Volume' : `${label} volume`}
         accessibilityValue={{ min: 0, max: 100, now: percent, text: `${percent} percent` }}
         accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
         onAccessibilityAction={(e) => {
@@ -68,7 +70,7 @@ export function VolumeSlider({ value, onChange }: Props) {
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md, alignSelf: 'stretch' },
-  label: { width: 56 },
+  label: { width: 72 },
   track: { flex: 1, height: MIN_TAP, justifyContent: 'center' },
   rail: {
     height: 6,

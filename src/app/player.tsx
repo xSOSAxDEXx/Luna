@@ -20,7 +20,7 @@ import { audioFade } from '@/theme/motion';
 
 /** Now playing: the timer ring, quick-add buttons and controls. */
 export default function PlayerScreen() {
-  const { status, sound, timer, pausedExternally, sessionId } = usePlayer();
+  const { status, sound, program, title, timer, pausedExternally, sessionId } = usePlayer();
   const acknowledgedSession = useSafeSleepReminder((s) => s.acknowledgedSession);
   const acknowledgeSafety = useSafeSleepReminder((s) => s.acknowledge);
   const volume = useSettings((s) => s.volume);
@@ -32,7 +32,7 @@ export default function PlayerScreen() {
 
   const close = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
-  if (!sound || !timer || status === 'idle') {
+  if (!sound || !program || !timer || status === 'idle') {
     return (
       <Screen edges={['top', 'bottom']}>
         <CloseButton onPress={close} />
@@ -57,7 +57,7 @@ export default function PlayerScreen() {
   const showSafetyReminder = !finished && acknowledgedSession !== sessionId;
 
   const onMainButton = () => {
-    if (finished) player.start(sound);
+    if (finished) player.start(program);
     else if (playing) player.pause();
     else player.resume();
   };
@@ -68,8 +68,13 @@ export default function PlayerScreen() {
         <CloseButton onPress={close} />
         <View style={styles.titleWrap}>
           <AppText variant="title" numberOfLines={1} accessibilityRole="header">
-            {sound.name}
+            {title}
           </AppText>
+          {program.kind === 'shuffle' && !finished ? (
+            <AppText variant="caption" tone="secondary" accessibilityLiveRegion="polite">
+              Playing now: {sound.name}
+            </AppText>
+          ) : null}
         </View>
         <View style={styles.spacer} />
       </View>
@@ -147,6 +152,22 @@ export default function PlayerScreen() {
           {/* Balances the Stop button so Play stays centred. */}
           <View style={styles.balance} />
         </View>
+        {/* Layer volumes sit below the main controls so Play/Pause stays in thumb reach. */}
+        {program.kind === 'mix' && !finished ? (
+          <View style={styles.mixer}>
+            <AppText variant="label" tone="secondary" accessibilityRole="header">
+              Mix layers
+            </AppText>
+            {program.layers.map((layer, i) => (
+              <VolumeSlider
+                key={layer.sound.id}
+                label={layer.sound.name}
+                value={layer.volume}
+                onChange={(v) => player.setLayerVolume(i, v)}
+              />
+            ))}
+          </View>
+        ) : null}
       </View>
     </Screen>
   );
@@ -212,6 +233,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   balance: { width: MIN_TAP + space.sm },
+  mixer: { gap: space.xs },
   hidden: { opacity: 0 },
   pressed: { opacity: 0.7 },
 });

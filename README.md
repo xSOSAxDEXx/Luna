@@ -114,6 +114,25 @@ The engine talks to audio through a small `AudioOutput` interface
 (`src/audio/expoOutput.ts` for the real app), so its tests run on a fake
 clock with fake speakers.
 
+## Play modes
+
+- **Loop**: tap any sound; it repeats seamlessly.
+- **Mix**: up to 3 sounds at once, each with its own volume (Create → Mix).
+  Mixes can be named and saved (`src/store/mixes.ts`, on-device) and appear
+  under **Your mixes**. Saved mixes store sound ids, so they keep working
+  when a placeholder sound is replaced.
+- **Shuffle**: one sound at a time from a set, each for 5 minutes, then an
+  equal-power 4-second crossfade to the next (`SHUFFLE_TRACK_MS` in
+  `src/audio/program.ts`). Every sound plays before any repeats, and never
+  twice in a row. Each category has a **Shuffle** button; Create → Shuffle
+  picks a custom set.
+
+All three run on the same engine (`src/audio/engine.ts`) as a _program_
+of one or more voices, so the sleep timer, fades, background heartbeats,
+outside pauses and the safe-sleep reminder work the same for each. The
+first voice (a mix's first layer, or shuffle's current sound) owns the
+lock screen; a lock-screen pause pauses every layer.
+
 ## Sounds
 
 White, pink and brown noise are generated in code

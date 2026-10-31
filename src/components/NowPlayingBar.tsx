@@ -11,9 +11,9 @@ import { CloseIcon, PauseIcon, PlayIcon } from './icons';
 
 /** A slim "now playing" bar on the library, so the player is one tap away. */
 export function NowPlayingBar() {
-  const { status, sound, timer } = usePlayer();
+  const { status, sound, program, title, timer } = usePlayer();
   const now = useNow(1000, status === 'playing');
-  if (!sound || !timer || status === 'idle') return null;
+  if (!sound || !program || !timer || status === 'idle') return null;
 
   const playing = status === 'playing';
   const detail = status === 'finished' ? 'Sleep well' : formatRemaining(timer, now);
@@ -23,11 +23,11 @@ export function NowPlayingBar() {
       <Pressable
         onPress={() => router.push('/player')}
         accessibilityRole="button"
-        accessibilityLabel={`Now playing ${sound.name}, ${detail}`}
+        accessibilityLabel={`Now playing ${title}, ${detail}`}
         accessibilityHint="Opens the player"
         style={({ pressed }) => [styles.info, pressed && styles.pressed]}>
         <AppText variant="bodyStrong" numberOfLines={1}>
-          {sound.name}
+          {title}
         </AppText>
         <AppText variant="caption" tone="secondary">
           {detail}
@@ -36,9 +36,9 @@ export function NowPlayingBar() {
       {status === 'finished' ? (
         <>
           <Pressable
-            onPress={() => player.start(sound)}
+            onPress={() => player.start(program)}
             accessibilityRole="button"
-            accessibilityLabel={`Play ${sound.name} again`}
+            accessibilityLabel={`Play ${title} again`}
             style={({ pressed }) => [styles.button, pressed && styles.pressed]}>
             <PlayIcon color={colors.onMoon} size={26} />
           </Pressable>
