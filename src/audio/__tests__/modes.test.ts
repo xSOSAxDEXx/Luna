@@ -219,6 +219,15 @@ describe('Shuffle', () => {
     expect(events.filter(([e]) => e === 'shuffle-next')).toHaveLength(1);
   });
 
+  it('logs the whole set at the start, not just the first sound', () => {
+    const events: [string, Record<string, unknown> | undefined][] = [];
+    const { engine } = setupWithLog(events);
+    engine.start(shuffle(set), 'untilStop');
+    const start = events.find(([e]) => e === 'start')?.[1];
+    expect(start?.sounds).toEqual(set.map((s) => s.id));
+    expect(start?.playing).toHaveLength(1);
+  });
+
   it('treats a set of one as that sound looping', () => {
     const { engine } = setup();
     engine.start(shuffle([rain]));

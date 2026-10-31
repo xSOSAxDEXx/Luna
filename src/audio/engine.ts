@@ -4,6 +4,7 @@ import {
   crossfadeGains,
   MAX_MIX_LAYERS,
   type Program,
+  programSounds,
   programTitle,
   SHUFFLE_TRACK_MS,
   shuffleOrder,
@@ -192,7 +193,13 @@ export class PlayerEngine {
       v.output.setVolume(0);
       v.output.play();
     }
-    this.log('start', { kind: program.kind, sounds: this.voices.map((v) => v.sound.id), minutes });
+    this.log('start', {
+      kind: program.kind,
+      // The whole set (for shuffle, every sound in it), then what plays first.
+      sounds: programSounds(program).map((s) => s.id),
+      playing: this.voices.map((v) => v.sound.id),
+      minutes,
+    });
     this.startTicker();
     this.tick();
   }
