@@ -9,10 +9,12 @@ type Props = {
   scroll?: boolean;
   /** Tab screens leave the bottom edge to the tab bar. */
   edges?: Edge[];
+  /** Pinned below the content (e.g. the now-playing bar), within thumb reach. */
+  footer?: ReactNode;
 };
 
 /** Night-sky background, safe areas, and a comfortable max width on big screens. */
-export function Screen({ children, scroll = true, edges = ['top'] }: Props) {
+export function Screen({ children, scroll = true, edges = ['top'], footer }: Props) {
   const body = <View style={styles.content}>{children}</View>;
   return (
     <SafeAreaView style={styles.root} edges={edges}>
@@ -23,6 +25,7 @@ export function Screen({ children, scroll = true, edges = ['top'] }: Props) {
       ) : (
         body
       )}
+      {footer ? <View style={styles.footer}>{footer}</View> : null}
     </SafeAreaView>
   );
 }
@@ -39,5 +42,12 @@ const styles = StyleSheet.create({
     paddingTop: space.lg,
     paddingBottom: space.xl,
     gap: space.lg,
+  },
+  footer: {
+    width: '100%',
+    maxWidth: MAX_CONTENT_WIDTH,
+    alignSelf: 'center',
+    paddingHorizontal: space.md,
+    paddingBottom: space.sm,
   },
 });

@@ -43,7 +43,8 @@ these scripts.
 - **Theme:** `src/theme/` holds colours, type (Nunito), spacing and motion
   tokens. Tests check the night palette (no pure white or bright blue, WCAG
   AA text contrast).
-- **State:** Zustand (added in step 2, when there is state to hold)
+- **State:** Zustand. Settings (volume, favorites) persist on-device with
+  AsyncStorage.
 - **Tests:** Jest (`jest-expo`) and React Native Testing Library
 
 ## Audio: why `expo-audio`
@@ -71,10 +72,35 @@ Known limits to design around:
 - Lock-screen controls need `interruptionMode: 'doNotMix'`, so Luna Beats
   pauses other apps' audio while it plays. That suits a sleep app.
 - On Android, background playback stops after about 3 minutes unless the
-  player is active for the lock screen. The player engine (step 2) always
-  sets this.
+  player is active for the lock screen. The player always sets this.
 
 These behaviours still need checking on real devices in step 3.
+
+## How playback works
+
+`src/audio/engine.ts` (`PlayerEngine`) owns playback and the sleep timer.
+Tapping a card starts the sound straight away on a 10-minute timer.
+
+- **The timer is timestamps, not a countdown.** It stores when the sound
+  should end (`src/audio/timer.ts`) and works out what's left from the
+  clock, so a throttled or suspended app never drifts. When the app
+  returns to the foreground it catches up at once.
+- **Volume is recomputed from scratch on every tick** (4 times a second):
+  chosen volume × fade-in × fade-out. A late or skipped tick can't leave a
+  fade stuck halfway.
+- **Fades:** 1.5 s fade-in on start and resume. The end-of-timer fade fills
+  the last 30 s, so the sound reaches silence exactly at 0:00. Stop and
+  switching sounds fade over 1 s. Nothing ever cuts off hard.
+- **Quick-add** (+5, +10, +15, +30) adds to the time left, even mid-fade
+  (the volume comes back up). After the timer has ended, quick-add plays
+  the same sound again for that long. "Until I stop" turns the timer off.
+- **The countdown is shown in minutes** ("12 min", "Under a minute"), never
+  ticking seconds, so it reads as calm rather than urgent.
+- The default volume is soft (35%).
+
+The engine talks to audio through a small `AudioOutput` interface
+(`src/audio/expoOutput.ts` for the real app), so its tests run on a fake
+clock with fake speakers.
 
 ## Sounds
 
@@ -85,6 +111,11 @@ no licence is needed. All other sounds must be CC0 or royalty-free and be
 recorded in [`assets/sounds/LICENSES.md`](./assets/sounds/LICENSES.md), which
 also lists the sounds still to source.
 
+The catalogue is `src/data/sounds.ts`. Sounds not sourced yet play a shared
+placeholder loop and show a **Placeholder** tag. Tests check that every
+sound file exists, every real sound has a licence entry, and every
+placeholder is listed as still to source.
+
 ## Web and PWA limits
 
 The website installs as an app and opens offline. Playing through the night
@@ -93,12 +124,19 @@ especially) than in the native app. Step 3 tests this on real devices and
 documents the actual limits here. The app will show a gentle tip on the web
 suggesting the installed app for overnight use.
 
+Lock-screen info uses the browser's Media Session API (checked in Chromium).
+Some browsers leave a tiny gap when an `<audio>` element loops; step 3
+checks this on iOS Safari and Android Chrome.
+
 ## Project layout
 
 ```
 src/app/          Expo Router screens: (tabs) Sounds, My Sounds, Settings; player
-src/components/   Shared UI (AppText, Screen, BreathingMoon, icons)
-src/audio/        Audio engine (step 2+) and the noise generator
+src/components/   Shared UI (SoundCard, TimerRing, QuickAddButtons, VolumeSlider, …)
+src/audio/        Player engine, sleep timer, expo-audio output, noise generator
+src/data/         Sound catalogue
+src/store/        Persisted settings (volume, favorites)
+src/hooks/        Small shared hooks
 src/theme/        Colours, typography, spacing, motion
 src/pwa/          Service worker registration (web only)
 assets/brand/     Logo SVG (source) and generated icons
