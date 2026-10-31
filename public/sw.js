@@ -13,13 +13,17 @@ const VERSION = '__LUNA_VERSION__';
 const PRECACHE = /* __LUNA_PRECACHE__ */ [];
 
 const CACHE = `luna-${VERSION}`;
-const SHELL = ['/', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png'];
+// Paths are relative to the service worker's scope ("/" locally, "/Luna/" on
+// GitHub Pages), so the same file works in both places.
+const BASE = new URL(self.registration.scope).pathname;
+const at = (p) => BASE + p.replace(/^\//, '');
+const SHELL = ['', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'].map(at);
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
       .open(CACHE)
-      .then((cache) => cache.addAll([...new Set([...SHELL, ...PRECACHE])]))
+      .then((cache) => cache.addAll([...new Set([...SHELL, ...PRECACHE.map(at)])]))
       .then(() => self.skipWaiting()),
   );
 });
@@ -90,10 +94,10 @@ self.addEventListener('fetch', (event) => {
       fetch(request)
         .then((response) => {
           const copy = response.clone();
-          caches.open(CACHE).then((cache) => cache.put('/', copy));
+          caches.open(CACHE).then((cache) => cache.put(BASE, copy));
           return response;
         })
-        .catch(() => caches.match('/')),
+        .catch(() => caches.match(BASE)),
     );
     return;
   }

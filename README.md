@@ -136,6 +136,17 @@ publishes it as a pre-release. Test builds include a **Playback check**
 section in Settings with an on-device log and a 2-minute test timer. The
 checklist is in [`docs/android-testing.md`](./docs/android-testing.md).
 
+## Web app on GitHub Pages
+
+`.github/workflows/web-pages.yml` publishes the installable web app to
+**https://xsosaxdexx.github.io/Luna/** (Actions tab → **Web app (GitHub
+Pages)** → Run workflow). One-time setup by the repository owner:
+Settings → Pages → Build and deployment → Source: **GitHub Actions**.
+
+The web build supports a sub-path: `EXPO_BASE_URL=/Luna npm run build:web`.
+The manifest and service worker use relative paths, and `404.html` lets
+Pages serve the app for deep links such as `/Luna/player`.
+
 ## Web and PWA limits
 
 The website installs as an app and works fully offline: after each web
