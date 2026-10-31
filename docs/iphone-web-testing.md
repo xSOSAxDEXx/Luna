@@ -36,6 +36,8 @@ Note your iPhone model and iOS version (Settings → General → About).
 | W12 | **Record**                          | My Sounds → **Record**, allow the microphone, record 20 s, **Listen back**, Save.                                      | Does Safari ask for the microphone? Does listening back and playing the card work?               |
 | W13 | **Recording kept**                  | Close Safari (or the Home Screen app) fully, reopen My Sounds later.                                                   | Is the recording still there and playable?                                                       |
 | W14 | **Backup and restore**              | Settings → **Make a backup** (saves to Files → Downloads). Delete the recording, then **Restore** and pick the file.   | Does the file save? Does restore bring the recording back?                                       |
+| W15 | **Welcome and quiet card**          | Open the site in a private tab. Then play a sound and tap **I understand**.                                            | Do the welcome pages show? Does the quiet-your-phone card show, with the Focus hint?             |
+| W16 | **Dim mode**                        | Play a sound and don't touch the screen for 10 s.                                                                      | Does it fade to near-black with the moon and time? Does a tap bring it back?                     |
 
 When you're done: Settings → Playback check → **Share log**, and send it
 along with your notes for each test.

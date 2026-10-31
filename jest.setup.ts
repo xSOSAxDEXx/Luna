@@ -158,3 +158,8 @@ jest.mock('expo-sharing', () => ({
   isAvailableAsync: jest.fn(() => Promise.resolve(true)),
   shareAsync: jest.fn(() => Promise.resolve()),
 }));
+
+// Most tests start past the first-launch welcome; the welcome's own tests reset this.
+beforeEach(() => {
+  require('@/store/settings').useSettings.setState({ onboarded: true });
+});

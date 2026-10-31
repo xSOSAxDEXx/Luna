@@ -59,6 +59,10 @@ export default function RootLayout() {
         <Stack.Screen name="player" options={{ presentation: 'modal' }} />
         <Stack.Screen name="create" options={{ presentation: 'modal' }} />
         <Stack.Screen name="record" options={{ presentation: 'modal' }} />
+        <Stack.Screen
+          name="welcome"
+          options={{ presentation: 'fullScreenModal', gestureEnabled: false }}
+        />
       </Stack>
     </ThemeProvider>
   );

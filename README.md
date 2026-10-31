@@ -201,6 +201,28 @@ skipped, not trusted (`src/backup/format.ts`).
 
 Both are free Expo modules with no accounts or network use.
 
+## Calm and safety (step 7)
+
+- **Welcome** (`src/app/welcome.tsx`): three short pages on first launch:
+  what the app does, the one-time volume and distance tip (across the room,
+  soft volume, never a charger near the baby), and quieting the phone. It
+  can be skipped and doesn't come back.
+- **Quiet your phone** (`src/safety/quietPhone.ts`): once the safe-sleep
+  reminder has been read, a soft, dismissible card says _"Before you settle
+  in. Silence your phone and turn off vibration so nothing disturbs the
+  little one."_ On Android its button opens Do Not Disturb (or sound
+  settings); iPhones don't allow apps to open Focus, so it says where to find
+  it. Settings: **Every time** (default), **Once a day**, **Never**.
+- **Dim mode:** after 8 seconds without a touch while playing, the player
+  fades to near-black with just the moon and the time left; a tap brings it
+  back. It never dims over the safe-sleep reminder, or while paused, and it
+  stays off when VoiceOver or TalkBack is on.
+- **Soft volume cap** (Settings, on by default) keeps the volume at 60% or
+  below; the slider shows a small mark where the cap sits. Sounds start at
+  35%. The kind volume tip sits next to it in Settings.
+- **Affirmations:** a small, kind line on the home screen, a different one
+  after each visit elsewhere (`src/data/affirmations.ts`).
+
 ## Sounds
 
 White, pink and brown noise, and the wake-up's light chimes, are generated

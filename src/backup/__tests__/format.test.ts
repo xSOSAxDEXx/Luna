@@ -22,7 +22,14 @@ const recording = {
 function backup(overrides: Partial<Backup> = {}): Backup {
   return {
     ...buildBackup({
-      settings: { volume: 0.3, favorites: ['rain'], wakeUpEnabled: true, wakeSoundId: 'auto' },
+      settings: {
+        volume: 0.3,
+        favorites: ['rain'],
+        wakeUpEnabled: true,
+        wakeSoundId: 'auto',
+        softVolumeCap: true,
+        quietReminder: 'daily',
+      },
       mixes: [{ id: 'mix-1', name: 'Nap time', layers: [{ soundId: 'rain', volume: 0.8 }] }],
       recordings: [recording],
       now: new Date('2026-10-31T21:00:00Z'),
@@ -57,7 +64,7 @@ describe('backup format', () => {
 
   it('keeps the readable parts and drops the rest', () => {
     const raw = JSON.parse(JSON.stringify(backup()));
-    raw.settings.volume = 7; // clamped, not rejected
+    raw.settings.volume = 7; // clamped (to the soft cap), not rejected
     raw.mixes.push({ id: 'mix-2', name: 'Empty', layers: [] }, 'junk');
     raw.recordings.push(
       { ...recording, id: '../../evil', audio: recording.audio },
@@ -67,11 +74,24 @@ describe('backup format', () => {
     );
     const parsed = parseBackup(JSON.stringify(raw));
     if (!parsed.ok) throw new Error(parsed.message);
-    expect(parsed.backup.settings.volume).toBe(1);
+    expect(parsed.backup.settings.volume).toBe(0.6);
     expect(parsed.backup.mixes.map((m) => m.id)).toEqual(['mix-1']);
     expect(parsed.backup.recordings.map((r) => r.id)).toEqual(['rec-abc-12345', 'rec-4']);
     // Unknown choices fall back to the defaults.
     expect(parsed.backup.recordings[1]).toMatchObject({ icon: 'note', color: 'gold', trim: null });
+  });
+  it('reads older backups without the cap or reminder settings, gently', () => {
+    const raw = JSON.parse(JSON.stringify(backup()));
+    delete raw.settings.softVolumeCap;
+    delete raw.settings.quietReminder;
+    raw.settings.volume = 0.9;
+    const parsed = parseBackup(JSON.stringify(raw));
+    if (!parsed.ok) throw new Error(parsed.message);
+    expect(parsed.backup.settings).toMatchObject({
+      softVolumeCap: true,
+      quietReminder: 'always',
+      volume: 0.6,
+    });
   });
 });
 

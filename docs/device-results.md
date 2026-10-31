@@ -62,6 +62,17 @@ Test build: **android-preview-5** (step 6). Waiting for results.
 | 18  | Recording in a mix     | ⏳ Pending |          |
 | 19  | Backup and restore     | ⏳ Pending |          |
 
+### Calm and safety (step 7)
+
+Test build: **android-preview-6** (step 7). Waiting for results.
+
+| #   | Test             | Result     | Evidence |
+| --- | ---------------- | ---------- | -------- |
+| 20  | Welcome          | ⏳ Pending |          |
+| 21  | Quiet your phone | ⏳ Pending |          |
+| 22  | Dim mode         | ⏳ Pending |          |
+| 23  | Soft volume cap  | ⏳ Pending |          |
+
 ## Not yet tested
 
 - **iPhone (iOS):** no device yet. The code paths are the same, but iOS may

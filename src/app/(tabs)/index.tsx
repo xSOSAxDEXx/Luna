@@ -1,4 +1,5 @@
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { player, usePlayer } from '@/audio/player';
@@ -9,6 +10,7 @@ import { CreateCard, MixCard } from '@/components/MixCard';
 import { NowPlayingBar } from '@/components/NowPlayingBar';
 import { Screen } from '@/components/Screen';
 import { SoundCard } from '@/components/SoundCard';
+import { AFFIRMATIONS, nextAffirmation } from '@/data/affirmations';
 import { CATEGORIES, type Sound, SOUNDS } from '@/data/sounds';
 import { mixToProgram, type SavedMix, useMixes } from '@/store/mixes';
 import { findSound, useRecordings, useRecordingSounds } from '@/store/recordings';
@@ -19,7 +21,21 @@ import { MIN_TAP, radius, space } from '@/theme';
  * The sound library: favorites first, then saved mixes, then each category
  * (each with a Shuffle button). One tap plays.
  */
+/** Which affirmation showed last, so the next visit shows a different one. */
+let lastAffirmation = 0;
+
 export default function LibraryScreen() {
+  const [affirmation, setAffirmation] = useState(lastAffirmation);
+  useFocusEffect(
+    useCallback(
+      () => () => {
+        // On leaving, pick the next one, so it's ready (no flicker) when they come back.
+        lastAffirmation = nextAffirmation(lastAffirmation);
+        setAffirmation(lastAffirmation);
+      },
+      [],
+    ),
+  );
   const favorites = useSettings((s) => s.favorites);
   const toggleFavorite = useSettings((s) => s.toggleFavorite);
   const mixes = useMixes((s) => s.mixes);
@@ -78,7 +94,7 @@ export default function LibraryScreen() {
             Luna Beats
           </AppText>
           <AppText variant="caption" tone="secondary">
-            One breath at a time.
+            {AFFIRMATIONS[affirmation]}
           </AppText>
         </View>
       </View>

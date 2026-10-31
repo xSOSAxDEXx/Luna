@@ -19,7 +19,8 @@ export type BackupOutcome = { ok: boolean; message: string } | null;
 
 /** Builds the backup from what's on this device and hands it to the parent to save. */
 export async function exportBackup(): Promise<BackupOutcome> {
-  const { volume, favorites, wakeUpEnabled, wakeSoundId } = useSettings.getState();
+  const { volume, favorites, wakeUpEnabled, wakeSoundId, softVolumeCap, quietReminder } =
+    useSettings.getState();
   const recordings: BackupRecording[] = [];
   let missing = 0;
   for (const { fileName, ...meta } of useRecordings.getState().recordings) {
@@ -28,7 +29,7 @@ export async function exportBackup(): Promise<BackupOutcome> {
     else missing++;
   }
   const backup = buildBackup({
-    settings: { volume, favorites, wakeUpEnabled, wakeSoundId },
+    settings: { volume, favorites, wakeUpEnabled, wakeSoundId, softVolumeCap, quietReminder },
     mixes: useMixes.getState().mixes,
     recordings,
   });
@@ -93,6 +94,8 @@ export async function restoreFromText(text: string): Promise<{ ok: boolean; mess
     favorites: plan.settings.favorites,
     wakeUpEnabled: plan.settings.wakeUpEnabled,
     wakeSoundId: plan.settings.wakeSoundId,
+    softVolumeCap: plan.settings.softVolumeCap,
+    quietReminder: plan.settings.quietReminder,
   });
 
   logEvent('backup-restore', {

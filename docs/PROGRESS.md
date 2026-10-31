@@ -15,8 +15,8 @@ _Last updated: 31 Oct 2026._
 | 4. Loop / Mix / Shuffle + saved mixes                                      | ✅ Done. Android tests 11–13 pass on build #3 (`docs/device-results.md`).                                                                                  |
 | 5. Wake-up cycle                                                           | ✅ Done. Android test 14 passes on build #4. ⏳ iPhone W11 (web).                                                                                          |
 | 6. Recording + backup/restore                                              | ✅ Built; web checked in Chromium (record, reload, backup, restore). ⏳ Android tests 15–19 on build #5; iPhone W12–W14 (web).                             |
-| 7. Quiet-phone reminder, dim mode, volume safety, onboarding, affirmations | **Next**                                                                                                                                                   |
-| 8. Polish, accessibility, store readiness                                  | —                                                                                                                                                          |
+| 7. Quiet-phone reminder, dim mode, volume safety, onboarding, affirmations | ✅ Built; checked in Chromium. ⏳ Android tests 20–23 on build #6; iPhone W15–W16 (web). Step 6 device tests also still to run.                            |
+| 8. Polish, accessibility, store readiness                                  | **Next**                                                                                                                                                   |
 
 ## Owner decisions (don't re-ask)
 
@@ -58,6 +58,13 @@ _Last updated: 31 Oct 2026._
   settings applied. Web recordings live in IndexedDB (may be cleared; the
   app says so).
 
+- Step 7: quiet card follows the safety reminder (never together, never
+  instead of it); default "Every time". Dim after 8 s without a touch, only
+  while playing, off with a screen reader (native). Soft volume cap 60%, on
+  by default; new backups carry the cap and reminder settings (older ones
+  restore with the gentle defaults). Welcome: 3 pages, skippable, once.
+  Affirmations change after each visit away from the library.
+
 ## Still open with the owner
 
 - **App ID** `com.lunabeats.app` is a placeholder; must be final before the
@@ -82,7 +89,7 @@ _Last updated: 31 Oct 2026._
 - **Android test APK:** GitHub Actions → "Android preview build" (run with
   workflow_dispatch on `ccr-0c40b67b-ep5bux`); publishes a pre-release
   `android-preview-N` with the APK. Builds take ~15 min. Builds 1–4 so far
-  (#4 has the wake-up); #5 is step 6.
+  (#4 has the wake-up); #5 is step 6, #6 is step 7.
 - **Web:** GitHub Actions → "Web app (GitHub Pages)" (workflow_dispatch).
 - This sandbox can't reach `github.io` or `docs.expo.dev` (proxy 403), and
   `expo install` needs `EXPO_OFFLINE=1`. Browser checks run against a local

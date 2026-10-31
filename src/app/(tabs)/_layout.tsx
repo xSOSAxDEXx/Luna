@@ -1,11 +1,25 @@
-import { Tabs } from 'expo-router';
+import { router, Tabs, useRootNavigationState } from 'expo-router';
+import { useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { MicIcon, MoonIcon, SlidersIcon } from '@/components/icons';
+import { useHydrated } from '@/hooks/useHydrated';
+import { useSettings } from '@/store/settings';
 import { colors, fontFamily, MIN_TAP, space } from '@/theme';
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
+  // First launch: a short welcome (once settings have loaded, so it never
+  // flashes up for someone who has already seen it).
+  const hydrated = useHydrated(useSettings);
+  const onboarded = useSettings((s) => s.onboarded);
+  const navigationReady = !!useRootNavigationState()?.key;
+  useEffect(() => {
+    if (!navigationReady || !hydrated || onboarded) return;
+    // After this render, once the navigator can take a push.
+    const id = setTimeout(() => router.push('/welcome'), 0);
+    return () => clearTimeout(id);
+  }, [navigationReady, hydrated, onboarded]);
   return (
     <Tabs
       screenOptions={{

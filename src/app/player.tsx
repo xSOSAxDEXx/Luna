@@ -1,11 +1,15 @@
 import { router } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { player, usePlayer } from '@/audio/player';
 import { formatRemaining, progress } from '@/audio/timer';
 import { AppText } from '@/components/AppText';
+import { DimOverlay } from '@/components/DimOverlay';
 import { ChevronDownIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/icons';
 import { Notice } from '@/components/Notice';
+import { QuietPhoneCard } from '@/components/QuietPhoneCard';
 import { SafeSleepReminder } from '@/components/SafeSleepReminder';
 import { Sunrise } from '@/components/Sunrise';
 import { QuickAddButtons } from '@/components/QuickAddButtons';
@@ -15,9 +19,11 @@ import { TimerRing } from '@/components/TimerRing';
 import { VolumeSlider } from '@/components/VolumeSlider';
 import { WakeUpToggle } from '@/components/WakeUpToggle';
 import { useNow } from '@/hooks/useNow';
+import { useScreenReaderEnabled } from '@/hooks/useScreenReader';
+import { localDay, shouldShowQuiet, useQuietPhone } from '@/safety/quietPhone';
 import { useSafeSleepReminder } from '@/safety/safeSleep';
-import { useSettings } from '@/store/settings';
-import { colors, MIN_TAP, space } from '@/theme';
+import { SOFT_VOLUME_CAP, useSettings } from '@/store/settings';
+import { colors, DIM_AFTER_MS, MIN_TAP, space } from '@/theme';
 import { audioFade } from '@/theme/motion';
 
 /** Now playing: the timer ring, quick-add buttons and controls. */
@@ -28,17 +34,59 @@ export default function PlayerScreen() {
   const acknowledgeSafety = useSafeSleepReminder((s) => s.acknowledge);
   const volume = useSettings((s) => s.volume);
   const setVolume = useSettings((s) => s.setVolume);
+  const softVolumeCap = useSettings((s) => s.softVolumeCap);
   const wakeUpEnabled = useSettings((s) => s.wakeUpEnabled);
   const wakeSoundId = useSettings((s) => s.wakeSoundId);
   const setWakeUp = useSettings((s) => s.setWakeUp);
   const now = useNow(1000, status === 'playing');
+  const quietReminder = useSettings((s) => s.quietReminder);
+  const quietShownOn = useSettings((s) => s.quietShownOn);
+  const markQuietShown = useSettings((s) => s.markQuietShown);
+  const quiet = useQuietPhone();
+  const screenReader = useScreenReaderEnabled();
+  // Dim mode: the time of the last touch anywhere on the player.
+  const [lastTouch, setLastTouch] = useState(() => Date.now());
+  const wake = () => setLastTouch(Date.now());
+
+  const finished = status === 'finished';
+  const playing = status === 'playing';
+  const live = !!sound && !!program && !!timer && status !== 'idle';
+  // Shown every time a sound starts, until acknowledged. The sound is already
+  // playing; the reminder takes the ring's place so it can't be missed.
+  const showSafetyReminder = live && !finished && acknowledgedSession !== sessionId;
+  // "Quiet your phone" (CLAUDE.md §3.7) follows once the safety reminder is read.
+  const today = localDay(new Date(now));
+  const showQuiet =
+    live &&
+    !finished &&
+    phase === 'sleep' &&
+    !showSafetyReminder &&
+    shouldShowQuiet({
+      setting: quietReminder,
+      sessionId,
+      dismissedSession: quiet.dismissedSession,
+      shownSession: quiet.shownSession,
+      shownOn: quietShownOn,
+      today,
+    });
+  const { markShown } = quiet;
+  useEffect(() => {
+    if (showQuiet) {
+      markShown(sessionId);
+      markQuietShown(today);
+    }
+  }, [showQuiet, sessionId, today, markShown, markQuietShown]);
+  // Never dims over the safety reminder, or for screen-reader users.
+  const dimmed =
+    live && playing && !showSafetyReminder && !screenReader && now - lastTouch >= DIM_AFTER_MS;
+
   // Keep the ring comfortably sized on short screens, where notices also need room.
   const { height } = useWindowDimensions();
   const ringSize = Math.max(180, Math.min(260, Math.round(height * 0.3)));
 
   const close = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
-  if (!sound || !program || !timer || status === 'idle') {
+  if (!live || !sound || !program || !timer) {
     return (
       <Screen edges={['top', 'bottom']}>
         <CloseButton onPress={close} />
@@ -50,8 +98,6 @@ export default function PlayerScreen() {
     );
   }
 
-  const finished = status === 'finished';
-  const playing = status === 'playing';
   const fading =
     playing &&
     timer.kind === 'countdown' &&
@@ -74,10 +120,6 @@ export default function PlayerScreen() {
           : timer.kind === 'untilStop'
             ? 'No timer'
             : 'left';
-  // Shown every time a sound starts, until acknowledged. The sound is already
-  // playing; the reminder takes the ring's place so it can't be missed.
-  const showSafetyReminder = !finished && acknowledgedSession !== sessionId;
-
   const onMainButton = () => {
     if (finished) player.start(program);
     else if (playing) player.pause();
@@ -85,130 +127,139 @@ export default function PlayerScreen() {
   };
 
   return (
-    <Screen edges={['top', 'bottom']}>
-      <View style={styles.topRow}>
-        <CloseButton onPress={close} />
-        <View style={styles.titleWrap}>
-          <AppText variant="title" numberOfLines={1} accessibilityRole="header">
-            {title}
-          </AppText>
-          {waking && !finished ? (
-            <AppText variant="caption" tone="secondary" accessibilityLiveRegion="polite">
-              Waking up to {sound.name}
+    <View style={styles.root} onTouchStart={wake} onPointerDown={wake}>
+      <Screen edges={['top', 'bottom']}>
+        <View style={styles.topRow}>
+          <CloseButton onPress={close} />
+          <View style={styles.titleWrap}>
+            <AppText variant="title" numberOfLines={1} accessibilityRole="header">
+              {title}
             </AppText>
-          ) : program.kind === 'shuffle' && !finished ? (
-            <AppText variant="caption" tone="secondary" accessibilityLiveRegion="polite">
-              Playing now: {sound.name}
-            </AppText>
+            {waking && !finished ? (
+              <AppText variant="caption" tone="secondary" accessibilityLiveRegion="polite">
+                Waking up to {sound.name}
+              </AppText>
+            ) : program.kind === 'shuffle' && !finished ? (
+              <AppText variant="caption" tone="secondary" accessibilityLiveRegion="polite">
+                Playing now: {sound.name}
+              </AppText>
+            ) : null}
+          </View>
+          <View style={styles.spacer} />
+        </View>
+
+        <View style={styles.ringWrap}>
+          {showSafetyReminder ? (
+            <SafeSleepReminder onAcknowledge={() => acknowledgeSafety(sessionId)} />
+          ) : waking ? (
+            <Sunrise size={ringSize} progress={finished ? 1 : 1 - progress(timer, now)}>
+              <AppText variant="title" style={styles.ringText} accessibilityLiveRegion="polite">
+                {label}
+              </AppText>
+              <AppText variant="caption" tone="secondary">
+                {caption}
+              </AppText>
+            </Sunrise>
+          ) : (
+            <TimerRing size={ringSize} progress={finished ? 0 : progress(timer, now)}>
+              <AppText
+                // Big digits for "12 min"; calmer, smaller words for everything else.
+                variant={/^\d/.test(label) ? 'timer' : 'title'}
+                style={styles.ringText}
+                accessibilityLiveRegion="polite">
+                {label}
+              </AppText>
+              <AppText variant="caption" tone="secondary">
+                {caption}
+              </AppText>
+            </TimerRing>
+          )}
+        </View>
+
+        {/* Controls sit low on the screen, within thumb reach. */}
+        <View style={styles.controls}>
+          {pausedExternally && status === 'paused' ? (
+            <Notice
+              title="Paused for a moment"
+              body="A call or another app needed the sound. Tap play when you're ready."
+            />
+          ) : null}
+          {showQuiet ? <QuietPhoneCard onDismiss={() => quiet.dismiss(sessionId)} /> : null}
+          {playing && !showSafetyReminder ? <WebTip /> : null}
+          {/* The wake-up has its own fixed length, so no adding time during it. */}
+          {waking && !finished ? null : (
+            <QuickAddButtons
+              onAdd={(m) => player.addMinutes(m)}
+              onUntilStop={() => player.playUntilStopped()}
+              untilStopActive={timer.kind === 'untilStop' && !finished}
+            />
+          )}
+          <VolumeSlider
+            value={volume}
+            onChange={setVolume}
+            max={softVolumeCap ? SOFT_VOLUME_CAP : 1}
+          />
+          <View style={styles.transport}>
+            <Pressable
+              onPress={() => {
+                player.stop();
+                close();
+              }}
+              disabled={finished}
+              accessibilityRole="button"
+              accessibilityLabel="Stop"
+              accessibilityState={{ disabled: finished }}
+              style={({ pressed }) => [
+                styles.secondaryButton,
+                finished && styles.hidden,
+                pressed && styles.pressed,
+              ]}>
+              <StopIcon color={colors.textSecondary} />
+            </Pressable>
+            <Pressable
+              onPress={onMainButton}
+              accessibilityRole="button"
+              accessibilityLabel={finished ? 'Play again' : playing ? 'Pause' : 'Play'}
+              style={({ pressed }) => [styles.mainButton, pressed && styles.pressed]}>
+              {playing ? (
+                <PauseIcon color={colors.onMoon} size={36} />
+              ) : (
+                <PlayIcon color={colors.onMoon} size={36} />
+              )}
+            </Pressable>
+            {/* Balances the Stop button so Play stays centred. */}
+            <View style={styles.balance} />
+          </View>
+          {/* Layer volumes sit below the main controls so Play/Pause stays in thumb reach. */}
+          {program.kind === 'mix' && !finished && !waking ? (
+            <View style={styles.mixer}>
+              <AppText variant="label" tone="secondary" accessibilityRole="header">
+                Mix layers
+              </AppText>
+              {program.layers.map((layer, i) => (
+                <VolumeSlider
+                  key={layer.sound.id}
+                  label={layer.sound.name}
+                  value={layer.volume}
+                  onChange={(v) => player.setLayerVolume(i, v)}
+                />
+              ))}
+            </View>
+          ) : null}
+          {!finished && !waking ? (
+            <WakeUpToggle
+              enabled={wakeUpEnabled}
+              soundId={wakeSoundId}
+              hasTimer={timer.kind === 'countdown'}
+              onToggle={(enabled) => setWakeUp({ enabled })}
+              onPickSound={(soundId) => setWakeUp({ soundId })}
+            />
           ) : null}
         </View>
-        <View style={styles.spacer} />
-      </View>
-
-      <View style={styles.ringWrap}>
-        {showSafetyReminder ? (
-          <SafeSleepReminder onAcknowledge={() => acknowledgeSafety(sessionId)} />
-        ) : waking ? (
-          <Sunrise size={ringSize} progress={finished ? 1 : 1 - progress(timer, now)}>
-            <AppText variant="title" style={styles.ringText} accessibilityLiveRegion="polite">
-              {label}
-            </AppText>
-            <AppText variant="caption" tone="secondary">
-              {caption}
-            </AppText>
-          </Sunrise>
-        ) : (
-          <TimerRing size={ringSize} progress={finished ? 0 : progress(timer, now)}>
-            <AppText
-              // Big digits for "12 min"; calmer, smaller words for everything else.
-              variant={/^\d/.test(label) ? 'timer' : 'title'}
-              style={styles.ringText}
-              accessibilityLiveRegion="polite">
-              {label}
-            </AppText>
-            <AppText variant="caption" tone="secondary">
-              {caption}
-            </AppText>
-          </TimerRing>
-        )}
-      </View>
-
-      {/* Controls sit low on the screen, within thumb reach. */}
-      <View style={styles.controls}>
-        {pausedExternally && status === 'paused' ? (
-          <Notice
-            title="Paused for a moment"
-            body="A call or another app needed the sound. Tap play when you're ready."
-          />
-        ) : null}
-        {playing && !showSafetyReminder ? <WebTip /> : null}
-        {/* The wake-up has its own fixed length, so no adding time during it. */}
-        {waking && !finished ? null : (
-          <QuickAddButtons
-            onAdd={(m) => player.addMinutes(m)}
-            onUntilStop={() => player.playUntilStopped()}
-            untilStopActive={timer.kind === 'untilStop' && !finished}
-          />
-        )}
-        <VolumeSlider value={volume} onChange={setVolume} />
-        <View style={styles.transport}>
-          <Pressable
-            onPress={() => {
-              player.stop();
-              close();
-            }}
-            disabled={finished}
-            accessibilityRole="button"
-            accessibilityLabel="Stop"
-            accessibilityState={{ disabled: finished }}
-            style={({ pressed }) => [
-              styles.secondaryButton,
-              finished && styles.hidden,
-              pressed && styles.pressed,
-            ]}>
-            <StopIcon color={colors.textSecondary} />
-          </Pressable>
-          <Pressable
-            onPress={onMainButton}
-            accessibilityRole="button"
-            accessibilityLabel={finished ? 'Play again' : playing ? 'Pause' : 'Play'}
-            style={({ pressed }) => [styles.mainButton, pressed && styles.pressed]}>
-            {playing ? (
-              <PauseIcon color={colors.onMoon} size={36} />
-            ) : (
-              <PlayIcon color={colors.onMoon} size={36} />
-            )}
-          </Pressable>
-          {/* Balances the Stop button so Play stays centred. */}
-          <View style={styles.balance} />
-        </View>
-        {/* Layer volumes sit below the main controls so Play/Pause stays in thumb reach. */}
-        {program.kind === 'mix' && !finished && !waking ? (
-          <View style={styles.mixer}>
-            <AppText variant="label" tone="secondary" accessibilityRole="header">
-              Mix layers
-            </AppText>
-            {program.layers.map((layer, i) => (
-              <VolumeSlider
-                key={layer.sound.id}
-                label={layer.sound.name}
-                value={layer.volume}
-                onChange={(v) => player.setLayerVolume(i, v)}
-              />
-            ))}
-          </View>
-        ) : null}
-        {!finished && !waking ? (
-          <WakeUpToggle
-            enabled={wakeUpEnabled}
-            soundId={wakeSoundId}
-            hasTimer={timer.kind === 'countdown'}
-            onToggle={(enabled) => setWakeUp({ enabled })}
-            onPickSound={(soundId) => setWakeUp({ soundId })}
-          />
-        ) : null}
-      </View>
-    </Screen>
+      </Screen>
+      <StatusBar style="light" hidden={dimmed} />
+      {dimmed ? <DimOverlay label={label} onWake={wake} /> : null}
+    </View>
   );
 }
 
@@ -227,6 +278,7 @@ function CloseButton({ onPress }: { onPress: () => void }) {
 const MAIN = 88;
 
 const styles = StyleSheet.create({
+  root: { flex: 1 },
   topRow: { flexDirection: 'row', alignItems: 'center' },
   titleWrap: { flex: 1, alignItems: 'center' },
   spacer: { width: MIN_TAP },

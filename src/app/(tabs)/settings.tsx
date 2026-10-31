@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Platform, Share, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, Share, StyleSheet, View } from 'react-native';
 
 import { player } from '@/audio/player';
 import { exportBackup, importBackup, type BackupOutcome } from '@/backup/backup';
@@ -9,6 +9,7 @@ import { Button } from '@/components/Button';
 import { Notice } from '@/components/Notice';
 import { SafeSleepReminder } from '@/components/SafeSleepReminder';
 import { Screen } from '@/components/Screen';
+import { SwitchRow } from '@/components/SwitchRow';
 import { getSound } from '@/data/sounds';
 import {
   clearLog,
@@ -17,9 +18,10 @@ import {
   formatLog,
   useDiagnosticsLog,
 } from '@/diagnostics/log';
-import { colors, radius, space } from '@/theme';
+import { type QuietReminder, SOFT_VOLUME_CAP, useSettings } from '@/store/settings';
+import { colors, MIN_TAP, radius, space } from '@/theme';
 
-/** Settings: the safe-sleep guidance, backup and restore. More arrives in step 7. */
+/** Settings: safe-sleep guidance, volume, the quiet-phone reminder, backup and restore. */
 export default function SettingsScreen() {
   return (
     <Screen>
@@ -27,9 +29,81 @@ export default function SettingsScreen() {
         Settings
       </AppText>
       <SafeSleepReminder />
+      <VolumeSafety />
+      <QuietPhoneSetting />
       <BackupRestore />
       {DIAGNOSTICS_ENABLED ? <PlaybackCheck /> : null}
     </Screen>
+  );
+}
+
+/** The kind volume tip (CLAUDE.md §3.8) and the soft volume cap, on by default. */
+function VolumeSafety() {
+  const softVolumeCap = useSettings((s) => s.softVolumeCap);
+  const setSoftVolumeCap = useSettings((s) => s.setSoftVolumeCap);
+  return (
+    <View style={styles.section}>
+      <AppText variant="label" tone="secondary" accessibilityRole="header">
+        Volume
+      </AppText>
+      <AppText variant="caption" tone="secondary">
+        Little ears are sensitive. Sound carries well, so a phone across the room from the crib at a
+        soft volume is plenty.
+      </AppText>
+      <SwitchRow
+        label="Soft volume cap"
+        detail={`Keeps the sound at ${Math.round(SOFT_VOLUME_CAP * 100)}% or below`}
+        value={softVolumeCap}
+        onChange={setSoftVolumeCap}
+      />
+    </View>
+  );
+}
+
+const QUIET_CHOICES: { value: QuietReminder; label: string }[] = [
+  { value: 'always', label: 'Every time' },
+  { value: 'daily', label: 'Once a day' },
+  { value: 'never', label: 'Never' },
+];
+
+/** How often "Before you settle in… silence your phone" shows (CLAUDE.md §3.7). */
+function QuietPhoneSetting() {
+  const quietReminder = useSettings((s) => s.quietReminder);
+  const setQuietReminder = useSettings((s) => s.setQuietReminder);
+  return (
+    <View style={styles.section}>
+      <AppText variant="label" tone="secondary" accessibilityRole="header">
+        “Quiet your phone” reminder
+      </AppText>
+      <AppText variant="caption" tone="secondary">
+        When a sound starts, a gentle card suggests silencing your phone and turning off vibration.
+      </AppText>
+      <View
+        style={styles.choices}
+        accessibilityRole="radiogroup"
+        accessibilityLabel="Show the quiet-your-phone reminder">
+        {QUIET_CHOICES.map(({ value, label }) => {
+          const selected = quietReminder === value;
+          return (
+            <Pressable
+              key={value}
+              onPress={() => setQuietReminder(value)}
+              accessibilityRole="radio"
+              accessibilityState={{ selected }}
+              accessibilityLabel={label}
+              style={({ pressed }) => [
+                styles.choice,
+                selected && styles.choiceSelected,
+                pressed && styles.pressed,
+              ]}>
+              <AppText variant="label" style={selected && styles.choiceSelectedText}>
+                {label}
+              </AppText>
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
   );
 }
 
@@ -157,4 +231,17 @@ const styles = StyleSheet.create({
     padding: space.md,
     gap: space.xs,
   },
+  choices: { flexDirection: 'row', gap: space.sm },
+  choice: {
+    flex: 1,
+    minHeight: MIN_TAP,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceRaised,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: space.sm,
+  },
+  choiceSelected: { backgroundColor: colors.lavender },
+  choiceSelectedText: { color: colors.onMoon },
+  pressed: { opacity: 0.7 },
 });

@@ -9,6 +9,7 @@ import { MAX_MIX_LAYERS } from '@/audio/program';
 import type { SoundIcon } from '@/data/sounds';
 import type { TrimRange } from '@/recording/trim';
 import type { SavedMix } from '@/store/mixes';
+import { clampVolume, type QuietReminder } from '@/store/settings';
 import {
   cleanName,
   RECORDING_COLORS,
@@ -25,6 +26,8 @@ export type BackupSettings = {
   favorites: string[];
   wakeUpEnabled: boolean;
   wakeSoundId: string;
+  softVolumeCap: boolean;
+  quietReminder: QuietReminder;
 };
 
 export type BackupRecording = Omit<Recording, 'fileName'> & {
@@ -76,11 +79,16 @@ function parseSettings(raw: unknown): BackupSettings | null {
   if (!isObject(raw)) return null;
   const volume = typeof raw.volume === 'number' && Number.isFinite(raw.volume) ? raw.volume : null;
   if (volume == null) return null;
+  // Missing in older backups: the gentle defaults (cap on, remind every time).
+  const softVolumeCap = raw.softVolumeCap !== false;
   return {
-    volume: clamp01(volume),
+    volume: clampVolume(volume, softVolumeCap),
     favorites: Array.isArray(raw.favorites) ? raw.favorites.filter(isString) : [],
     wakeUpEnabled: raw.wakeUpEnabled === true,
     wakeSoundId: isString(raw.wakeSoundId) ? raw.wakeSoundId : 'auto',
+    softVolumeCap,
+    quietReminder:
+      raw.quietReminder === 'daily' || raw.quietReminder === 'never' ? raw.quietReminder : 'always',
   };
 }
 
