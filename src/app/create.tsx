@@ -9,8 +9,9 @@ import { ChevronDownIcon } from '@/components/icons';
 import { type BuildMode, ModeToggle } from '@/components/ModeToggle';
 import { Screen } from '@/components/Screen';
 import { VolumeSlider } from '@/components/VolumeSlider';
-import { CATEGORIES, getSound, type Sound, SOUNDS } from '@/data/sounds';
+import { CATEGORIES, type Sound, SOUNDS } from '@/data/sounds';
 import { getMix, mixToProgram, useMixes } from '@/store/mixes';
+import { findSound, useRecordingSounds } from '@/store/recordings';
 import { colors, fontFamily, MIN_TAP, radius, space } from '@/theme';
 
 type Layer = { soundId: string; volume: number };
@@ -25,6 +26,7 @@ export default function CreateScreen() {
   const editing = params.id ? getMix(params.id) : undefined;
   const saveMix = useMixes((s) => s.saveMix);
   const deleteMix = useMixes((s) => s.deleteMix);
+  const mySounds = useRecordingSounds();
 
   const [mode, setMode] = useState<BuildMode>(editing ? 'mix' : (params.mode ?? 'mix'));
   const [layers, setLayers] = useState<Layer[]>(editing?.layers ?? []);
@@ -73,7 +75,7 @@ export default function CreateScreen() {
         : {
             kind: 'shuffle',
             name: 'Your shuffle',
-            sounds: shuffleIds.map(getSound).filter((s): s is Sound => s != null),
+            sounds: shuffleIds.map(findSound).filter((s): s is Sound => s != null),
           };
     player.start(program);
     router.replace('/player');
@@ -121,13 +123,20 @@ export default function CreateScreen() {
           : `Choose two or more sounds. Each plays for 5 minutes, then softly gives way to the next.`}
       </AppText>
 
-      {CATEGORIES.map(({ key, title }) => (
+      {[
+        ...CATEGORIES.map(({ key, title }) => ({
+          key: key as string,
+          title,
+          sounds: SOUNDS.filter((s) => s.category === key),
+        })),
+        ...(mySounds.length > 0 ? [{ key: 'mine', title: 'My Sounds', sounds: mySounds }] : []),
+      ].map(({ key, title, sounds }) => (
         <View key={key} style={styles.group}>
           <AppText variant="label" tone="secondary">
             {title}
           </AppText>
           <View style={styles.chips}>
-            {SOUNDS.filter((s) => s.category === key).map((sound) => {
+            {sounds.map((sound) => {
               const selected = isSelected(sound.id);
               const disabled = mode === 'mix' && mixFull && !selected;
               return (
@@ -162,7 +171,7 @@ export default function CreateScreen() {
           {layers.map((layer) => (
             <VolumeSlider
               key={layer.soundId}
-              label={getSound(layer.soundId)?.name ?? ''}
+              label={findSound(layer.soundId)?.name ?? ''}
               value={layer.volume}
               onChange={(volume) =>
                 setLayers((current) =>

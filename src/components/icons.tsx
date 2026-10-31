@@ -154,6 +154,13 @@ const soundPaths: Record<SoundIconName, (c: ColorValue) => ReactNode> = {
     </>
   ),
   star: (c) => <Path d={SPARKLE} {...stroke(c)} />,
+  // An open storybook, for bedtime stories.
+  book: (c) => (
+    <Path
+      d="M12 6.5C10 5 7 4.5 4 5v13c3-.5 6 0 8 1.5M12 6.5c2-1.5 5-2 8-1.5v13c-3-.5-6 0-8 1.5M12 6.5v13"
+      {...stroke(c)}
+    />
+  ),
 };
 
 export function SoundIcon({ name, color, size = 30 }: IconProps & { name: SoundIconName }) {

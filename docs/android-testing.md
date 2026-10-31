@@ -34,6 +34,11 @@ Before you start: Settings → Playback check → **Clear**.
 | 12  | **Shuffle, screen off**                    | Tap **Shuffle** next to Noise. Tap **Until I stop**, lock the phone for 12+ minutes.                                                                                               | About every 5 minutes the sound softly crossfades (≈4 s) to another noise; no gaps or jumps. The lock screen shows the current sound. Log shows `shuffle-next` lines.                                |
 | 13  | **Saved mix**                              | Close the app fully, reopen.                                                                                                                                                       | The saved mix is under **Your mixes**; one tap plays it. The sliders icon edits it; **Delete mix** asks you to tap again.                                                                            |
 | 14  | **Gentle wake-up, screen off**             | Start a sound, switch on **Gentle wake-up at the end** (leave it on Auto) and keep the normal 10-minute timer. Lock the phone and wait until about 6 minutes after the timer ends. | Near the end the sound fades while soft chimes come in; the chimes rise slowly for 5 minutes, then fade out. Unlocking shows a sunrise and "Good morning". The log shows `wake-start` then `finish`. |
+| 15  | **Microphone permission**                  | My Sounds → **Record**.                                                                                                                                                            | A short explanation shows first. **Allow microphone** brings up Android's prompt; after allowing, the big microphone button appears. Next time, no explanation or prompt.                            |
+| 16  | **Record and listen back**                 | Record about 30 s: stay quiet for 3–4 s, sing or read, then 3–4 s quiet again. Stop. **Listen back**, try **Re-record** once, then name it, pick an icon and color, and **Save**.  | Listening back is clear, starting near your first word. The card appears in My Sounds (and under My Sounds in the Sounds tab) with its length.                                                       |
+| 17  | **Recording, screen off**                  | Tap your recording, keep the 10-minute timer, lock the phone.                                                                                                                      | It loops with no long silent gap between repeats, and fades out at the end like any sound. Log: `recording-saved` (with `trimmedSeconds`) and `finish`.                                              |
+| 18  | **Recording in a mix**                     | Create → Mix: **Rain** plus your recording, Save & play.                                                                                                                           | Both play together; each layer's slider works.                                                                                                                                                       |
+| 19  | **Backup and restore**                     | Settings → **Make a backup**, save it to Files or Drive. Then delete your recording (sliders button → **Delete recording**, tap again). Settings → **Restore**, pick the backup.   | "Restored 1 recording…". The recording is back in My Sounds and plays; saved mixes and favorites are still there.                                                                                    |
 
 After the tests: Settings → Playback check → **Share log**, and send it
 over along with any notes (phone model and Android version help too).
@@ -49,5 +54,9 @@ over along with any notes (phone model and Android version help too).
 - `shuffle-next`: shuffle crossfaded to the next sound.
 - `wake-start`: the sleep timer ended and the gentle wake-up began
   (`lateMs` as for `finish`).
+- `recording-saved`: a recording was saved (`seconds` long, `trimmedSeconds`
+  of quiet trimmed from its loop). `mic-permission`: the microphone answer.
+- `backup-export` / `backup-restore`: how many recordings and mixes went
+  into, or came back from, a backup.
 - `external-pause` / `external-resume`: something outside the app paused or
   resumed the sound (lock screen, a call, another app).

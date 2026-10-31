@@ -43,8 +43,9 @@ these scripts.
 - **Theme:** `src/theme/` holds colours, type (Nunito), spacing and motion
   tokens. Tests check the night palette (no pure white or bright blue, WCAG
   AA text contrast).
-- **State:** Zustand. Settings (volume, favorites) persist on-device with
-  AsyncStorage.
+- **State:** Zustand. Settings, favorites, saved mixes and the list of
+  recordings persist on-device with AsyncStorage. Recording audio is stored
+  as files (see below).
 - **Tests:** Jest (`jest-expo`) and React Native Testing Library
 
 ## Audio: why `expo-audio`
@@ -151,6 +152,55 @@ never wakes. Pausing holds the wake-up like the sleep timer. The curves are
 in `src/audio/wake.ts`; the engine runs them from timestamps, so they work
 with the screen off. Wake-up sounds aren't shown in the library.
 
+## Record your own (My Sounds)
+
+**My Sounds → Record**: a parent sings a lullaby or reads a story. The flow
+is record → listen back → re-record or save → name it, with an icon and a
+color. Saved recordings are cards like any other sound: one tap plays them
+with the timer, and they work in mixes, shuffles, favorites and the gentle
+wake-up. Each card's sliders button renames, restyles or deletes it (delete
+asks for a second tap).
+
+- **Microphone permission** is only asked for on the first tap of Record,
+  after a short, warm explanation. If it was turned off, the app says how to
+  switch it back on and doesn't nag.
+- **Recorder:** `expo-audio`'s recorder, AAC (`.m4a`), mono, 96 kbps (about
+  2 MB for a 3-minute lullaby). Anything playing stops while recording. A
+  take stops by itself after 20 minutes.
+- **Silence trim** (`src/recording/trim.ts`): while recording, the loudness
+  level is sampled ~10 times a second. Afterwards the app finds where the
+  voice starts and ends (relative to the loudest moment, so a whisper still
+  counts) and loops only that part, with a little room either side. The file
+  itself is never cut, so the trim can be switched off per recording.
+- **Storage:** on the phone, recordings are files in the app's own documents
+  folder (`src/recording/files.ts`). On the web they're kept in the browser
+  (IndexedDB, `files.web.ts`), which a browser may clear (Safari after weeks
+  without a visit), so the web version says so and suggests a backup.
+  Nothing is uploaded anywhere.
+
+## Backup and restore
+
+**Settings → Backup and restore.** "Make a backup" builds one JSON file
+(`luna-beats-backup-YYYY-MM-DD.json`) with settings, favorites, saved mixes
+and recordings (their audio included as base64). On the phone it opens the
+share sheet so the parent chooses where it goes (Files, Drive, email); on the
+web it downloads. "Restore" opens a file picker and **adds** what's in the
+backup: mixes and recordings already on the device are left alone, favorites
+are combined, and nothing is ever deleted. Unreadable parts of a file are
+skipped, not trusted (`src/backup/format.ts`).
+
+### New dependencies (step 6)
+
+- `expo-file-system`: stores recordings, writes the backup file and opens
+  the file picker for restore (it has one built in, so no separate
+  document-picker package is needed). It was already installed as part of
+  Expo; now it's a direct dependency.
+- `expo-sharing`: opens the phone's share sheet to save or send the backup.
+  Its optional config plugin (for receiving shares from other apps) is not
+  used.
+
+Both are free Expo modules with no accounts or network use.
+
 ## Sounds
 
 White, pink and brown noise, and the wake-up's light chimes, are generated
@@ -208,11 +258,13 @@ checks this on iOS Safari and Android Chrome.
 ## Project layout
 
 ```
-src/app/          Expo Router screens: (tabs) Sounds, My Sounds, Settings; player
+src/app/          Expo Router screens: (tabs) Sounds, My Sounds, Settings; player, create, record
 src/components/   Shared UI (SoundCard, TimerRing, QuickAddButtons, VolumeSlider, …)
 src/audio/        Player engine, sleep timer, expo-audio output, noise generator
 src/data/         Sound catalogue
-src/store/        Persisted settings (volume, favorites)
+src/recording/    Recording storage (native and web), recorder settings, silence trim
+src/backup/       Backup file format, export and restore
+src/store/        Persisted settings, favorites, mixes, recordings
 src/hooks/        Small shared hooks
 src/theme/        Colours, typography, spacing, motion
 src/pwa/          Service worker registration (web only)

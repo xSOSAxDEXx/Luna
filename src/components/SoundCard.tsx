@@ -4,7 +4,7 @@ import type { Sound } from '@/data/sounds';
 import { colors, MIN_TAP, radius, space } from '@/theme';
 
 import { AppText } from './AppText';
-import { HeartIcon, SoundIcon } from './icons';
+import { HeartIcon, SlidersIcon, SoundIcon } from './icons';
 
 type Props = {
   sound: Sound;
@@ -13,6 +13,10 @@ type Props = {
   active: boolean;
   onPress: () => void;
   onToggleFavorite: () => void;
+  /** The parent's recordings can be renamed, restyled or deleted. */
+  onEdit?: () => void;
+  /** Extra line on the card (a recording's length). */
+  detail?: string;
 };
 
 /** Hex colour at a given opacity (0..1), for soft category tints. */
@@ -25,8 +29,16 @@ function tint(hex: string, alpha: number) {
   );
 }
 
-export function SoundCard({ sound, favorite, active, onPress, onToggleFavorite }: Props) {
-  const categoryColor = colors.category[sound.category];
+export function SoundCard({
+  sound,
+  favorite,
+  active,
+  onPress,
+  onToggleFavorite,
+  onEdit,
+  detail,
+}: Props) {
+  const categoryColor = sound.tint ?? colors.category[sound.category];
   return (
     <View style={styles.wrap}>
       <Pressable
@@ -53,8 +65,22 @@ export function SoundCard({ sound, favorite, active, onPress, onToggleFavorite }
           <AppText variant="caption" tone="muted">
             Placeholder
           </AppText>
+        ) : detail ? (
+          <AppText variant="caption" tone="muted">
+            {detail}
+          </AppText>
         ) : null}
       </Pressable>
+
+      {onEdit ? (
+        <Pressable
+          onPress={onEdit}
+          accessibilityRole="button"
+          accessibilityLabel={`Edit ${sound.name}`}
+          style={({ pressed }) => [styles.edit, pressed && styles.pressed]}>
+          <SlidersIcon color={colors.textMuted} size={22} />
+        </Pressable>
+      ) : null}
 
       <Pressable
         onPress={onToggleFavorite}
@@ -89,6 +115,16 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     right: 0,
+    width: MIN_TAP,
+    height: MIN_TAP,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  // Beside the heart, clear of the icon, name and length.
+  edit: {
+    position: 'absolute',
+    top: 0,
+    right: MIN_TAP - space.sm,
     width: MIN_TAP,
     height: MIN_TAP,
     alignItems: 'center',

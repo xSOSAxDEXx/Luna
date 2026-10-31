@@ -58,6 +58,7 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="player" options={{ presentation: 'modal' }} />
         <Stack.Screen name="create" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="record" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>
   );

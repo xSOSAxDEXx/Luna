@@ -14,8 +14,8 @@ _Last updated: 31 Oct 2026._
 | 3. Background / lock screen / offline                                      | ✅ Android verified on device (`docs/device-results.md`). ⏳ iPhone: testing the **web app** in Safari (`docs/iphone-web-testing.md`); results not in yet. |
 | 4. Loop / Mix / Shuffle + saved mixes                                      | ✅ Done. Android tests 11–13 pass on build #3 (`docs/device-results.md`).                                                                                  |
 | 5. Wake-up cycle                                                           | ✅ Done. Android test 14 passes on build #4. ⏳ iPhone W11 (web).                                                                                          |
-| 6. Recording + backup/restore                                              | **Next**                                                                                                                                                   |
-| 7. Quiet-phone reminder, dim mode, volume safety, onboarding, affirmations | —                                                                                                                                                          |
+| 6. Recording + backup/restore                                              | ✅ Built; web checked in Chromium (record, reload, backup, restore). ⏳ Android tests 15–19 on build #5; iPhone W12–W14 (web).                             |
+| 7. Quiet-phone reminder, dim mode, volume safety, onboarding, affirmations | **Next**                                                                                                                                                   |
 | 8. Polish, accessibility, store readiness                                  | —                                                                                                                                                          |
 
 ## Owner decisions (don't re-ask)
@@ -49,6 +49,15 @@ _Last updated: 31 Oct 2026._
   code; birds and melody are placeholders). Quick-add hidden during the
   wake-up; it needs a timer (not "Until I stop").
 
+- Recording: AAC mono 96 kbps; anything playing stops while recording;
+  20-minute limit per take; silence trim on by default (loops the voiced
+  part, file untouched); icons note/book/heart/moon/star/leaf and six
+  palette colors. Permission explained first, asked only on Record.
+- Backup: one JSON file with audio as base64; restore only adds (never
+  deletes or overwrites), favorites combined, backup's volume and wake-up
+  settings applied. Web recordings live in IndexedDB (may be cleared; the
+  app says so).
+
 ## Still open with the owner
 
 - **App ID** `com.lunabeats.app` is a placeholder; must be final before the
@@ -72,8 +81,8 @@ _Last updated: 31 Oct 2026._
 - `npm run check`: typecheck, lint, format, tests (run before every commit).
 - **Android test APK:** GitHub Actions → "Android preview build" (run with
   workflow_dispatch on `ccr-0c40b67b-ep5bux`); publishes a pre-release
-  `android-preview-N` with the APK. Builds take ~15 min. Builds 1–3 so far;
-  **#3 has Mix/Shuffle** (published 2:17 pm ET, 31 Oct).
+  `android-preview-N` with the APK. Builds take ~15 min. Builds 1–4 so far
+  (#4 has the wake-up); #5 is step 6.
 - **Web:** GitHub Actions → "Web app (GitHub Pages)" (workflow_dispatch).
 - This sandbox can't reach `github.io` or `docs.expo.dev` (proxy 403), and
   `expo install` needs `EXPO_OFFLINE=1`. Browser checks run against a local
@@ -95,4 +104,10 @@ _Last updated: 31 Oct 2026._
   `scripts/postexport-web.mjs`), serves audio byte ranges from cache, and
   works under the `/Luna` sub-path (`EXPO_BASE_URL`, `app.config.js`).
 - Jest needs `react-native-reanimated/jest/resolver` and the mocks in
-  `jest.setup.ts` (worklets, AsyncStorage, an expo-audio fake).
+  `jest.setup.ts` (worklets, AsyncStorage, an expo-audio fake with a
+  recorder, an in-memory expo-file-system, expo-sharing).
+- Trimmed recordings loop by seeking on expo-audio status updates
+  (`loopRangeSeek`, every 250 ms for those players), so the loop point works
+  with the screen off too.
+- Web checks of recording use Chromium's fake microphone
+  (`--use-fake-device-for-media-stream`).

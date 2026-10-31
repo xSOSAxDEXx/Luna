@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { getSound } from '@/data/sounds';
+import { findSound } from '@/store/recordings';
 import type { SavedMix } from '@/store/mixes';
 import { colors, MIN_TAP, radius, space } from '@/theme';
 
@@ -22,7 +22,7 @@ type Props = {
 
 /** A saved mix in the library: one tap plays it, the corner button edits it. */
 export function MixCard({ mix, active, onPress, onEdit }: Props) {
-  const names = mix.layers.map((l) => getSound(l.soundId)?.name).filter(Boolean);
+  const names = mix.layers.map((l) => findSound(l.soundId)?.name).filter(Boolean);
   return (
     <View style={styles.wrap}>
       <Pressable

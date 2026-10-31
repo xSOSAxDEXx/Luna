@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { MAX_MIX_LAYERS, type Program } from '@/audio/program';
-import { getSound } from '@/data/sounds';
+import { findSound } from '@/store/recordings';
 
 /**
  * A saved mix. Layers refer to sounds by id, so a mix keeps working when a
@@ -26,7 +26,7 @@ function newId() {
   return `mix-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
-/** Saved mixes, kept on this device. Included in backup and restore (step 6). */
+/** Saved mixes, kept on this device. Included in backup and restore. */
 export const useMixes = create<MixesState>()(
   persist(
     (set, get) => ({
@@ -69,7 +69,7 @@ export function mixToProgram(mix: SavedMix): Extract<Program, { kind: 'mix' }> {
     id: mix.id,
     name: mix.name,
     layers: mix.layers.flatMap(({ soundId, volume }) => {
-      const sound = getSound(soundId);
+      const sound = findSound(soundId);
       return sound ? [{ sound, volume }] : [];
     }),
   };

@@ -33,6 +33,9 @@ Note your iPhone model and iOS version (Settings → General → About).
 | W9  | **Mix and shuffle**                 | Create → Mix with 3 sounds; then Shuffle next to Noise.                                                                | Do all layers play together? Does shuffle play?                                                  |
 | W10 | **Seamless loop**                   | Play **White noise** for a minute.                                                                                     | Any click or gap around each 30-second mark?                                                     |
 | W11 | **Gentle wake-up**                  | Start a sound, switch on **Gentle wake-up at the end**, keep the screen on until the timer ends, then wait 5 minutes.  | Do chimes come in softly as the sound fades, rise slowly, and end with "Good morning"?           |
+| W12 | **Record**                          | My Sounds → **Record**, allow the microphone, record 20 s, **Listen back**, Save.                                      | Does Safari ask for the microphone? Does listening back and playing the card work?               |
+| W13 | **Recording kept**                  | Close Safari (or the Home Screen app) fully, reopen My Sounds later.                                                   | Is the recording still there and playable?                                                       |
+| W14 | **Backup and restore**              | Settings → **Make a backup** (saves to Files → Downloads). Delete the recording, then **Restore** and pick the file.   | Does the file save? Does restore bring the recording back?                                       |
 
 When you're done: Settings → Playback check → **Share log**, and send it
 along with your notes for each test.

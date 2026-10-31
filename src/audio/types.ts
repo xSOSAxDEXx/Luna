@@ -1,3 +1,4 @@
+import type { TrimRange } from '@/recording/trim';
 import type { CategoryKey } from '@/theme';
 
 export type OutputEvents = {
@@ -34,8 +35,13 @@ export type SoundCategory = Exclude<CategoryKey, 'mine'>;
 export type PlayableSound = {
   id: string;
   name: string;
-  /** A bundled asset (`require(...)`) or, later, a file URI for recordings. */
+  /** A bundled asset (`require(...)`) or a file URI (the parent's recordings). */
   source: number | string;
+  /**
+   * Loop only this part of the file (a recording with its silence trimmed).
+   * Absent: loop the whole file.
+   */
+  loopRange?: TrimRange;
 };
 
 export type CreateOutput = (sound: PlayableSound, events: OutputEvents) => AudioOutput;

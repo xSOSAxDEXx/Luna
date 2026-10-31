@@ -12,10 +12,12 @@ export type SoundIcon =
   | 'car'
   | 'train'
   | 'note'
-  | 'star';
+  | 'star'
+  | 'book';
 
 export type Sound = PlayableSound & {
-  category: SoundCategory;
+  /** 'mine' is the parent's own recordings (My Sounds). */
+  category: SoundCategory | 'mine';
   icon: SoundIcon;
   /**
    * Path under assets/sounds/. Every real (non-placeholder) file must have a
@@ -27,6 +29,8 @@ export type Sound = PlayableSound & {
    * placeholder loop and carry a visible "Placeholder" tag.
    */
   placeholder: boolean;
+  /** A colour the parent picked (recordings); otherwise the category's tint. */
+  tint?: string;
 };
 
 export const CATEGORIES: { key: SoundCategory; title: string }[] = [

@@ -9,8 +9,9 @@ import { CreateCard, MixCard } from '@/components/MixCard';
 import { NowPlayingBar } from '@/components/NowPlayingBar';
 import { Screen } from '@/components/Screen';
 import { SoundCard } from '@/components/SoundCard';
-import { CATEGORIES, getSound, type Sound, SOUNDS } from '@/data/sounds';
+import { CATEGORIES, type Sound, SOUNDS } from '@/data/sounds';
 import { mixToProgram, type SavedMix, useMixes } from '@/store/mixes';
+import { findSound, useRecordings, useRecordingSounds } from '@/store/recordings';
 import { useSettings } from '@/store/settings';
 import { MIN_TAP, radius, space } from '@/theme';
 
@@ -22,6 +23,9 @@ export default function LibraryScreen() {
   const favorites = useSettings((s) => s.favorites);
   const toggleFavorite = useSettings((s) => s.toggleFavorite);
   const mixes = useMixes((s) => s.mixes);
+  const mySounds = useRecordingSounds();
+  // Favorites can include recordings, so re-read them when files load.
+  const filesVersion = useRecordings((s) => s.filesVersion);
   const { program, status } = usePlayer();
   const live = status === 'playing' || status === 'paused';
 
@@ -43,7 +47,7 @@ export default function LibraryScreen() {
   };
   const create = () => router.push('/create');
 
-  const favoriteSounds = favorites.map((id) => getSound(id)).filter((s): s is Sound => s != null);
+  const favoriteSounds = favoriteList(favorites, filesVersion);
 
   const mixesSection = (
     <View style={styles.section}>
@@ -102,23 +106,32 @@ export default function LibraryScreen() {
       {/* Saved mixes sit near the top; with none yet, "Create" waits at the end. */}
       {mixes.length > 0 ? mixesSection : null}
 
-      {CATEGORIES.map(({ key, title }) => {
-        const sounds = SOUNDS.filter((s) => s.category === key);
+      {[
+        ...CATEGORIES.map(({ key, title }) => ({
+          key: key as string,
+          title,
+          sounds: SOUNDS.filter((s) => s.category === key),
+        })),
+        // The parent's own recordings, once there are some.
+        ...(mySounds.length > 0 ? [{ key: 'mine', title: 'My Sounds', sounds: mySounds }] : []),
+      ].map(({ key, title, sounds }) => {
         return (
           <View key={key} style={styles.section}>
             <View style={styles.sectionHeader}>
               <AppText variant="label" tone="secondary" accessibilityRole="header">
                 {title}
               </AppText>
-              <Pressable
-                onPress={() => shuffleCategory(title, sounds)}
-                accessibilityRole="button"
-                accessibilityLabel={`Shuffle ${title} sounds`}
-                style={({ pressed }) => [styles.shuffle, pressed && styles.pressed]}>
-                <AppText variant="caption" tone="lavender">
-                  Shuffle
-                </AppText>
-              </Pressable>
+              {sounds.length >= 2 ? (
+                <Pressable
+                  onPress={() => shuffleCategory(title, sounds)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Shuffle ${title} sounds`}
+                  style={({ pressed }) => [styles.shuffle, pressed && styles.pressed]}>
+                  <AppText variant="caption" tone="lavender">
+                    Shuffle
+                  </AppText>
+                </Pressable>
+              ) : null}
             </View>
             <View style={styles.grid}>
               {sounds.map((sound) => (
@@ -139,6 +152,11 @@ export default function LibraryScreen() {
       {mixes.length === 0 ? mixesSection : null}
     </Screen>
   );
+}
+
+/** `filesVersion` is passed so this re-runs when recordings finish loading. */
+function favoriteList(favorites: string[], _filesVersion: number): Sound[] {
+  return favorites.map(findSound).filter((s): s is Sound => s != null);
 }
 
 const styles = StyleSheet.create({
