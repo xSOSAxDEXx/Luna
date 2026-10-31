@@ -28,7 +28,8 @@ export function ModeToggle({
             key={o.value}
             onPress={() => onChange(o.value)}
             accessibilityRole="radio"
-            accessibilityState={{ selected }}
+            accessibilityState={{ selected, checked: selected }}
+            aria-checked={selected}
             accessibilityLabel={`${o.label}: ${o.hint}`}
             style={[styles.option, selected && styles.selected]}>
             <AppText variant="label" style={selected && styles.selectedText}>

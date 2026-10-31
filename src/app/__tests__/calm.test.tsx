@@ -13,6 +13,7 @@ import TabsLayout from '../(tabs)/_layout';
 import MySoundsScreen from '../(tabs)/my-sounds';
 import SettingsScreen from '../(tabs)/settings';
 import PlayerScreen from '../player';
+import PrivacyScreen from '../privacy';
 import WelcomeScreen from '../welcome';
 
 const fakePlayers = () =>
@@ -27,6 +28,7 @@ async function renderApp(initialUrl = '/') {
       '(tabs)/settings': SettingsScreen,
       player: PlayerScreen,
       welcome: WelcomeScreen,
+      privacy: PrivacyScreen,
     },
     { initialUrl },
   );
@@ -221,5 +223,17 @@ describe('affirmations', () => {
     await fireEvent.press(screen.getByLabelText('Settings'));
     await fireEvent.press(screen.getByLabelText('Sounds library'));
     await waitFor(() => expect(shown()).toEqual([expect.not.stringMatching(before)]));
+  });
+});
+
+describe('privacy', () => {
+  it('is summed up in Settings, with the full policy a tap away', async () => {
+    await renderApp('/settings');
+    expect(
+      screen.getByText(/does not collect, send or share any personal information/),
+    ).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Read the privacy policy' }));
+    expect(await screen.findByText('Microphone and recordings')).toBeOnTheScreen();
+    expect(screen.getByText(/Last updated/)).toBeOnTheScreen();
   });
 });

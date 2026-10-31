@@ -15,7 +15,12 @@ type Props = {
 
 /** Night-sky background, safe areas, and a comfortable max width on big screens. */
 export function Screen({ children, scroll = true, edges = ['top'], footer }: Props) {
-  const body = <View style={styles.content}>{children}</View>;
+  // On the web this is the page's main landmark.
+  const body = (
+    <View style={styles.content} role="main">
+      {children}
+    </View>
+  );
   return (
     <SafeAreaView style={styles.root} edges={edges}>
       {scroll ? (

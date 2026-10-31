@@ -146,6 +146,7 @@ export default function CreateScreen() {
                   disabled={disabled}
                   accessibilityRole="checkbox"
                   accessibilityState={{ checked: selected, disabled }}
+                  aria-checked={selected}
                   accessibilityLabel={sound.name}
                   style={({ pressed }) => [
                     styles.chip,

@@ -7,16 +7,16 @@ _Last updated: 31 Oct 2026._
 
 ## Build order status (CLAUDE.md §6)
 
-| Step                                                                       | Status                                                                                                                                                     |
-| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1. Scaffold                                                                | ✅ Done                                                                                                                                                    |
-| 2. Library + single-sound playback, timer, quick-add, fade-out             | ✅ Done                                                                                                                                                    |
-| 3. Background / lock screen / offline                                      | ✅ Android verified on device (`docs/device-results.md`). ⏳ iPhone: testing the **web app** in Safari (`docs/iphone-web-testing.md`); results not in yet. |
-| 4. Loop / Mix / Shuffle + saved mixes                                      | ✅ Done. Android tests 11–13 pass on build #3 (`docs/device-results.md`).                                                                                  |
-| 5. Wake-up cycle                                                           | ✅ Done. Android test 14 passes on build #4. ⏳ iPhone W11 (web).                                                                                          |
-| 6. Recording + backup/restore                                              | ✅ Built; web checked in Chromium (record, reload, backup, restore). ⏳ Android tests 15–19 on build #5; iPhone W12–W14 (web).                             |
-| 7. Quiet-phone reminder, dim mode, volume safety, onboarding, affirmations | ✅ Built; checked in Chromium. ⏳ Android tests 20–23 on build #6; iPhone W15–W16 (web). Step 6 device tests also still to run.                            |
-| 8. Polish, accessibility, store readiness                                  | **Next**                                                                                                                                                   |
+| Step                                                                       | Status                                                                                                                                                                                                        |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1. Scaffold                                                                | ✅ Done                                                                                                                                                                                                       |
+| 2. Library + single-sound playback, timer, quick-add, fade-out             | ✅ Done                                                                                                                                                                                                       |
+| 3. Background / lock screen / offline                                      | ✅ Android verified on device (`docs/device-results.md`). ⏳ iPhone: testing the **web app** in Safari (`docs/iphone-web-testing.md`); results not in yet.                                                    |
+| 4. Loop / Mix / Shuffle + saved mixes                                      | ✅ Done. Android tests 11–13 pass on build #3 (`docs/device-results.md`).                                                                                                                                     |
+| 5. Wake-up cycle                                                           | ✅ Done. Android test 14 passes on build #4. ⏳ iPhone W11 (web).                                                                                                                                             |
+| 6. Recording + backup/restore                                              | ✅ Built; web checked in Chromium (record, reload, backup, restore). ⏳ Android tests 15–19 on build #5; iPhone W12–W14 (web).                                                                                |
+| 7. Quiet-phone reminder, dim mode, volume safety, onboarding, affirmations | ✅ Built; checked in Chromium. ⏳ Android tests 20–23 on build #6; iPhone W15–W16 (web). Step 6 device tests also still to run.                                                                               |
+| 8. Polish, accessibility, store readiness                                  | ✅ Built: a11y pass (tests + axe), privacy policy (app, md, web page), iOS privacy manifest, Android permissions trimmed, store listing draft. ⏳ Owner decisions in `docs/store-listing.md` → Before launch. |
 
 ## Owner decisions (don't re-ask)
 
@@ -65,10 +65,18 @@ _Last updated: 31 Oct 2026._
   restore with the gentle defaults). Welcome: 3 pages, skippable, once.
   Affirmations change after each visit away from the library.
 
+- Step 8: privacy policy source `src/legal/privacy.ts` (contact email
+  empty until the owner gives one). Android blocks SYSTEM_ALERT_WINDOW,
+  VIBRATE and external storage; INTERNET kept for now (owner to decide).
+  Store text and launch checklist: `docs/store-listing.md`.
+
 ## Still open with the owner
 
 - **App ID** `com.lunabeats.app` is a placeholder; must be final before the
   first store / Apple registration.
+- **Contact email** for the privacy policy and store listings.
+- **App Store category** (Lifestyle suggested) and whether to drop
+  Android's INTERNET permission.
 - **PR into `main`**: the brief says push to `main`; all work is on branch
   `ccr-0c40b67b-ep5bux` (currently the repo's only branch). Not asked to
   open a PR yet.
@@ -89,7 +97,7 @@ _Last updated: 31 Oct 2026._
 - **Android test APK:** GitHub Actions → "Android preview build" (run with
   workflow_dispatch on `ccr-0c40b67b-ep5bux`); publishes a pre-release
   `android-preview-N` with the APK. Builds take ~15 min. Builds 1–4 so far
-  (#4 has the wake-up); #5 is step 6, #6 is step 7.
+  (#4 has the wake-up); #5 is step 6, #6 is step 7, #7 is step 8.
 - **Web:** GitHub Actions → "Web app (GitHub Pages)" (workflow_dispatch).
 - This sandbox can't reach `github.io` or `docs.expo.dev` (proxy 403), and
   `expo install` needs `EXPO_OFFLINE=1`. Browser checks run against a local

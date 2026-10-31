@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { colors, MIN_TAP, radius, space } from '@/theme';
 
@@ -16,7 +16,8 @@ type Props = {
 /** A soft, low-contrast card for gentle tips and status messages. */
 export function Notice({ title, body, onDismiss, children }: Props) {
   return (
-    <View style={styles.card} accessibilityRole="summary">
+    // "Summary" helps VoiceOver; on the web it becomes a stray <section>, so it's skipped there.
+    <View style={styles.card} accessibilityRole={Platform.OS === 'web' ? undefined : 'summary'}>
       <View style={styles.text}>
         <AppText variant="bodyStrong">{title}</AppText>
         <AppText variant="caption" tone="secondary">

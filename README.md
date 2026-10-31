@@ -223,6 +223,29 @@ Both are free Expo modules with no accounts or network use.
 - **Affirmations:** a small, kind line on the home screen, a different one
   after each visit elsewhere (`src/data/affirmations.ts`).
 
+## Accessibility
+
+- Every control has a screen-reader name; switches, radios and the volume
+  slider report their state (`src/app/__tests__/accessibility.test.tsx`
+  checks every screen). The web build also passes an axe scan, apart from
+  the navigation library's tab bar sitting outside the page landmarks.
+- Text follows the phone's text-size setting; the big timer and titles grow
+  a little less so they still fit.
+- Reduce motion stops the breathing moon and makes fades instant; dim mode
+  stays off with VoiceOver or TalkBack. Tap targets are at least 56 px.
+
+## Privacy and store readiness
+
+No data leaves the device: no accounts, ads, analytics or tracking. The
+policy lives in `src/legal/privacy.ts` and is shown in the app (Settings →
+Privacy); `npm run privacy` writes [`docs/privacy-policy.md`](./docs/privacy-policy.md)
+and `public/privacy.html` (served at
+https://xsosaxdexx.github.io/Luna/privacy.html). A test fails if they're out
+of date. `app.json` carries the iOS privacy manifest (no tracking, no
+collected data) and blocks Android permissions the app doesn't use. Store
+text, form answers and the launch checklist are in
+[`docs/store-listing.md`](./docs/store-listing.md).
+
 ## Sounds
 
 White, pink and brown noise, and the wake-up's light chimes, are generated

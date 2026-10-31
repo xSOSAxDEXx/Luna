@@ -65,6 +65,11 @@ export function VolumeSlider({ value, onChange, label = 'Volume', max = 1 }: Pro
           now: percent,
           text: max < 1 ? `${percent} percent, soft cap on` : `${percent} percent`,
         }}
+        // The web needs these spelled out (react-native-web drops accessibilityValue).
+        aria-valuemin={0}
+        aria-valuemax={Math.round(max * 100)}
+        aria-valuenow={percent}
+        aria-valuetext={max < 1 ? `${percent} percent, soft cap on` : `${percent} percent`}
         accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
         onAccessibilityAction={(e) => {
           const delta = e.nativeEvent.actionName === 'increment' ? STEP : -STEP;

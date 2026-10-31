@@ -48,7 +48,8 @@ export function WakeUpToggle({ enabled, soundId, hasTimer, onToggle, onPickSound
                 key={c.id}
                 onPress={() => onPickSound(c.id)}
                 accessibilityRole="radio"
-                accessibilityState={{ selected }}
+                accessibilityState={{ selected, checked: selected }}
+                aria-checked={selected}
                 accessibilityLabel={c.placeholder ? `${c.name} (placeholder)` : c.name}
                 style={({ pressed }) => [
                   styles.chip,

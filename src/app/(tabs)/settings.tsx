@@ -3,11 +3,14 @@ import { useState } from 'react';
 import { Platform, Pressable, Share, StyleSheet, View } from 'react-native';
 
 import { player } from '@/audio/player';
+import Constants from 'expo-constants';
+
 import { exportBackup, importBackup, type BackupOutcome } from '@/backup/backup';
 import { AppText } from '@/components/AppText';
 import { Button } from '@/components/Button';
 import { Notice } from '@/components/Notice';
 import { SafeSleepReminder } from '@/components/SafeSleepReminder';
+import { PRIVACY_SUMMARY } from '@/legal/privacy';
 import { Screen } from '@/components/Screen';
 import { SwitchRow } from '@/components/SwitchRow';
 import { getSound } from '@/data/sounds';
@@ -32,6 +35,7 @@ export default function SettingsScreen() {
       <VolumeSafety />
       <QuietPhoneSetting />
       <BackupRestore />
+      <About />
       {DIAGNOSTICS_ENABLED ? <PlaybackCheck /> : null}
     </Screen>
   );
@@ -89,7 +93,8 @@ function QuietPhoneSetting() {
               key={value}
               onPress={() => setQuietReminder(value)}
               accessibilityRole="radio"
-              accessibilityState={{ selected }}
+              accessibilityState={{ selected, checked: selected }}
+              aria-checked={selected}
               accessibilityLabel={label}
               style={({ pressed }) => [
                 styles.choice,
@@ -103,6 +108,25 @@ function QuietPhoneSetting() {
           );
         })}
       </View>
+    </View>
+  );
+}
+
+/** Privacy in one line, the full policy, and the app's version. */
+function About() {
+  const version = Constants.expoConfig?.version ?? '';
+  return (
+    <View style={styles.section}>
+      <AppText variant="label" tone="secondary" accessibilityRole="header">
+        Privacy
+      </AppText>
+      <AppText variant="caption" tone="secondary">
+        {PRIVACY_SUMMARY}
+      </AppText>
+      <Button label="Read the privacy policy" onPress={() => router.push('/privacy')} />
+      <AppText variant="caption" tone="muted" style={styles.version}>
+        Luna Beats{version ? ` ${version}` : ''}
+      </AppText>
     </View>
   );
 }
@@ -232,6 +256,7 @@ const styles = StyleSheet.create({
     gap: space.xs,
   },
   choices: { flexDirection: 'row', gap: space.sm },
+  version: { textAlign: 'center', marginTop: space.sm },
   choice: {
     flex: 1,
     minHeight: MIN_TAP,

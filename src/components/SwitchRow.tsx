@@ -20,6 +20,7 @@ export function SwitchRow({ label, detail, value, onChange, accessibilityHint }:
       onPress={() => onChange(!value)}
       accessibilityRole="switch"
       accessibilityState={{ checked: value }}
+      aria-checked={value}
       accessibilityLabel={label}
       accessibilityHint={accessibilityHint}
       style={({ pressed }) => [styles.row, pressed && styles.pressed]}>

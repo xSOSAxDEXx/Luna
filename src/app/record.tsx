@@ -504,7 +504,8 @@ function DetailsForm({
               key={key}
               onPress={() => set({ icon: key })}
               accessibilityRole="radio"
-              accessibilityState={{ selected }}
+              accessibilityState={{ selected, checked: selected }}
+              aria-checked={selected}
               accessibilityLabel={label}
               style={({ pressed }) => [
                 styles.iconChoice,
@@ -528,7 +529,8 @@ function DetailsForm({
               key={key}
               onPress={() => set({ color: key })}
               accessibilityRole="radio"
-              accessibilityState={{ selected }}
+              accessibilityState={{ selected, checked: selected }}
+              aria-checked={selected}
               accessibilityLabel={RECORDING_COLORS[key].label}
               style={({ pressed }) => [
                 styles.colorChoice,
