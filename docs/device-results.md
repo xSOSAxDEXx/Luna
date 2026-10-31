@@ -40,6 +40,14 @@ Found while reading this log: the `start` line for shuffle listed only the
 first sound. Fixed after build 3; it now logs the whole set (`sounds`) and
 what plays first (`playing`).
 
+### Gentle wake-up (step 5)
+
+Test build: **android-preview-4** (commit `490fcf3`), 31 Oct 2026.
+
+| #   | Test                       | Result                    | Evidence                                                                                                                                                                                                                                       |
+| --- | -------------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 14  | Gentle wake-up, screen off | ✅ Pass (log) · ⏳ by ear | Brown noise, 10-min timer, wake-up on (Auto). Locked from 17:15:43. `wake-start` at 17:17:05, **451 ms** after the timer's end; `finish` at 17:22:05, **461 ms** after the wake-up's end. Both happened in the background (~2.1 heartbeats/s). |
+
 ## Not yet tested
 
 - **iPhone (iOS):** no device yet. The code paths are the same, but iOS may
