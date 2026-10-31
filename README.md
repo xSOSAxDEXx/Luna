@@ -85,9 +85,21 @@ Tapping a card starts the sound straight away on a 10-minute timer.
   should end (`src/audio/timer.ts`) and works out what's left from the
   clock, so a throttled or suspended app never drifts. When the app
   returns to the foreground it catches up at once.
-- **Volume is recomputed from scratch on every tick** (4 times a second):
-  chosen volume × fade-in × fade-out. A late or skipped tick can't leave a
-  fade stuck halfway.
+- **Volume is recomputed from scratch on every tick**: chosen volume ×
+  fade-in × fade-out. A late or skipped tick can't leave a fade stuck
+  halfway.
+- **Ticks come from the audio itself in the background.** React Native
+  pauses JS timers when an Android app is in the background, so a plain
+  `setInterval` would never stop the sound with the screen off. The player
+  also ticks on every native status update from `expo-audio` (every 500 ms
+  while sound is playing), which keeps coming in the background. A JS
+  interval adds smoother ticks while the app is open.
+- **Outside pauses are mirrored.** If a call, another app or the lock
+  screen pauses the sound, the player notices (from the status updates),
+  holds the timer and shows "Paused for a moment". A lock-screen resume
+  carries on where it left off.
+- **Lock screen** shows the sound and the time left ("12 min"), updated as
+  it changes, with the scrub bar hidden.
 - **Fades:** 1.5 s fade-in on start and resume. The end-of-timer fade fills
   the last 30 s, so the sound reaches silence exactly at 0:00. Stop and
   switching sounds fade over 1 s. Nothing ever cuts off hard.
@@ -116,9 +128,20 @@ placeholder loop and show a **Placeholder** tag. Tests check that every
 sound file exists, every real sound has a licence entry, and every
 placeholder is listed as still to source.
 
+## Testing on a phone
+
+`.github/workflows/android-preview.yml` builds an installable test APK on
+GitHub Actions (Actions tab → **Android preview build** → Run workflow) and
+publishes it as a pre-release. Test builds include a **Playback check**
+section in Settings with an on-device log and a 2-minute test timer. The
+checklist is in [`docs/android-testing.md`](./docs/android-testing.md).
+
 ## Web and PWA limits
 
-The website installs as an app and opens offline. Playing through the night
+The website installs as an app and works fully offline: after each web
+build, `scripts/postexport-web.mjs` writes every file (including all
+sounds) into the service worker's precache list. Audio range requests are
+served from the cache, which Safari needs. Playing through the night
 with the screen locked is less reliable in phone browsers (iOS Safari
 especially) than in the native app. Step 3 tests this on real devices and
 documents the actual limits here. The app will show a gentle tip on the web

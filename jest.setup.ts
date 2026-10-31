@@ -33,7 +33,13 @@ jest.mock('expo-audio', () => {
           p.removed = true;
         }),
         setActiveForLockScreen: jest.fn(),
+        updateLockScreenMetadata: jest.fn(),
         clearLockScreenControls: jest.fn(),
+        listeners: [] as unknown[],
+        addListener: jest.fn((_event: string, fn: unknown) => {
+          p.listeners.push(fn);
+          return { remove: () => p.listeners.splice(p.listeners.indexOf(fn), 1) };
+        }),
       };
       players.push(p);
       return p;

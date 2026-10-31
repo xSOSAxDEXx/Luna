@@ -1,6 +1,6 @@
 import { DEFAULT_VOLUME, PlayerEngine, STOP_FADE_MS, TICK_MS } from '../engine';
 import { MINUTE, remainingMs } from '../timer';
-import type { AudioOutput, PlayableSound } from '../types';
+import type { AudioOutput, OutputEvents, PlayableSound } from '../types';
 
 type FakeOutput = AudioOutput & {
   sound: PlayableSound;
@@ -8,13 +8,19 @@ type FakeOutput = AudioOutput & {
   volume: number;
   released: boolean;
   nowPlaying: string | null;
+  nowPlayingSubtitle: string | null;
+  events: OutputEvents;
 };
 
 const rain: PlayableSound = { id: 'rain', name: 'Rain', source: 1 };
 const fan: PlayableSound = { id: 'fan', name: 'Fan', source: 2 };
 
 /** An engine on a fake clock, with fake outputs we can inspect. */
-function setup() {
+function setupWithLog(events: [string, Record<string, unknown> | undefined][]) {
+  return setup((e, d) => events.push([e, d]));
+}
+
+function setup(log?: (event: string, detail?: Record<string, unknown>) => void) {
   let now = 1_700_000_000_000;
   const outputs: FakeOutput[] = [];
   let intervals: { fn: () => void; ms: number; next: number; id: number }[] = [];
@@ -22,10 +28,13 @@ function setup() {
   let nextId = 1;
 
   const engine = new PlayerEngine({
+    log,
     now: () => now,
-    createOutput: (sound) => {
+    createOutput: (sound, events) => {
       const out: FakeOutput = {
         sound,
+        events,
+        nowPlayingSubtitle: null,
         playing: false,
         volume: -1,
         released: false,
@@ -33,7 +42,10 @@ function setup() {
         play: () => void (out.playing = true),
         pause: () => void (out.playing = false),
         setVolume: (v) => void (out.volume = v),
-        showNowPlaying: (t) => void (out.nowPlaying = t),
+        showNowPlaying: (t, sub) => {
+          out.nowPlaying = t;
+          out.nowPlayingSubtitle = sub;
+        },
         release: () => {
           out.released = true;
           out.playing = false;
@@ -83,7 +95,22 @@ function setup() {
     intervals.forEach((i) => (i.next = now + i.ms));
   }
 
-  return { engine, outputs, advance, jump, getNow: () => now };
+  /**
+   * Like a locked Android phone: JS timers are frozen, and only heartbeats
+   * from audible outputs (every `beatMs`) reach the engine.
+   */
+  function advanceInBackground(ms: number, beatMs = 500) {
+    const end = now + ms;
+    while (now + beatMs <= end) {
+      now += beatMs;
+      outputs.filter((o) => o.playing && !o.released).forEach((o) => o.events.onHeartbeat());
+    }
+    now = end;
+    intervals.forEach((i) => (i.next = now + i.ms));
+    timeouts.forEach((t) => (t.at = Math.max(t.at, now)));
+  }
+
+  return { engine, outputs, advance, advanceInBackground, jump, getNow: () => now };
 }
 
 describe('PlayerEngine', () => {
@@ -265,5 +292,99 @@ describe('PlayerEngine', () => {
     engine.resume();
     engine.stop();
     expect(statuses).toEqual(['playing', 'paused', 'playing', 'idle']);
+  });
+
+  describe('with the app in the background (JS timers frozen)', () => {
+    it('still fades out and stops on time, driven by audio heartbeats', () => {
+      const { engine, outputs, advanceInBackground } = setup();
+      engine.setVolume(0.5);
+      engine.start(rain);
+
+      advanceInBackground(10 * MINUTE - 15_000);
+      expect(outputs[0].volume).toBeGreaterThan(0);
+      expect(outputs[0].volume).toBeLessThan(0.1);
+
+      advanceInBackground(15_500);
+      expect(engine.getSnapshot().status).toBe('finished');
+      expect(outputs[0].released).toBe(true);
+    });
+
+    it('logs how late the stop was', () => {
+      const events: [string, Record<string, unknown> | undefined][] = [];
+      const { engine, advanceInBackground } = setupWithLog(events);
+      engine.start(rain, 1);
+      advanceInBackground(MINUTE + 500);
+      const finish = events.find(([e]) => e === 'finish');
+      expect(finish?.[1]?.lateMs).toBeLessThanOrEqual(500);
+    });
+
+    it('finishes a stop fade even if the app is backgrounded straight after Stop', () => {
+      const { engine, outputs, advance, advanceInBackground } = setup();
+      engine.start(rain);
+      advance(5000);
+      engine.stop();
+      advanceInBackground(STOP_FADE_MS + 600);
+      expect(outputs[0].released).toBe(true);
+    });
+  });
+
+  describe('outside pauses and resumes', () => {
+    it('mirrors a pause from a call or the lock screen and holds the timer', () => {
+      const { engine, outputs, advance, getNow } = setup();
+      engine.start(rain);
+      advance(2 * MINUTE);
+      outputs[0].playing = false; // the OS paused it
+      outputs[0].events.onExternalChange(false);
+
+      const s = engine.getSnapshot();
+      expect(s.status).toBe('paused');
+      expect(s.pausedExternally).toBe(true);
+      advance(30 * MINUTE);
+      expect(remainingMs(engine.getSnapshot().timer!, getNow())).toBe(8 * MINUTE);
+    });
+
+    it('carries on, without a second fade-in, when resumed from outside', () => {
+      const { engine, outputs, advance, getNow } = setup();
+      engine.setVolume(0.5);
+      engine.start(rain);
+      advance(2 * MINUTE);
+      outputs[0].events.onExternalChange(false);
+      advance(MINUTE);
+
+      outputs[0].events.onExternalChange(true);
+      const s = engine.getSnapshot();
+      expect(s.status).toBe('playing');
+      expect(s.pausedExternally).toBe(false);
+      expect(outputs[0].volume).toBe(0.5);
+      expect(remainingMs(s.timer!, getNow())).toBe(8 * MINUTE);
+    });
+
+    it('clears the outside-pause flag when the parent resumes in the app', () => {
+      const { engine, outputs } = setup();
+      engine.start(rain);
+      outputs[0].events.onExternalChange(false);
+      engine.resume();
+      expect(engine.getSnapshot().pausedExternally).toBe(false);
+      expect(outputs[0].playing).toBe(true);
+    });
+
+    it('ignores events from a sound that has been replaced', () => {
+      const { engine, outputs } = setup();
+      engine.start(rain);
+      engine.start(fan);
+      outputs[0].events.onExternalChange(false);
+      expect(engine.getSnapshot().status).toBe('playing');
+    });
+  });
+
+  it('shows the time left on the lock screen, updated as it changes', () => {
+    const { engine, outputs, advance } = setup();
+    engine.start(rain);
+    expect(outputs[0].nowPlaying).toBe('Rain');
+    expect(outputs[0].nowPlayingSubtitle).toBe('10 min');
+    advance(MINUTE + 1000);
+    expect(outputs[0].nowPlayingSubtitle).toBe('9 min');
+    engine.playUntilStopped();
+    expect(outputs[0].nowPlayingSubtitle).toBe('Until you stop');
   });
 });

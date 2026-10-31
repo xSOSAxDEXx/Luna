@@ -50,10 +50,11 @@ describe('one tap to calm', () => {
     expect(audio.loop).toBe(true);
     // Starts silent and fades in, never at full blast.
     expect(audio.volume).toBeLessThanOrEqual(0.35);
-    expect(audio.setActiveForLockScreen).toHaveBeenCalledWith(true, {
-      title: 'Brown noise',
-      artist: 'Luna Beats',
-    });
+    expect(audio.setActiveForLockScreen).toHaveBeenCalledWith(
+      true,
+      { title: 'Brown noise', artist: '10 min', albumTitle: 'Luna Beats' },
+      { isLiveStream: true },
+    );
 
     expect(await screen.findByRole('header', { name: 'Brown noise' })).toBeOnTheScreen();
     expect(screen.getByText('10 min')).toBeOnTheScreen();

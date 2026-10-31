@@ -11,6 +11,9 @@ import { DEFAULT_VOLUME } from '@/audio/engine';
 type SettingsState = {
   volume: number;
   favorites: string[];
+  /** The web "use the app for all-night sound" tip was dismissed. */
+  webTipDismissed: boolean;
+  dismissWebTip: () => void;
   setVolume: (volume: number) => void;
   toggleFavorite: (soundId: string) => void;
 };
@@ -20,6 +23,8 @@ export const useSettings = create<SettingsState>()(
     (set) => ({
       volume: DEFAULT_VOLUME,
       favorites: [],
+      webTipDismissed: false,
+      dismissWebTip: () => set({ webTipDismissed: true }),
       setVolume: (volume) => set({ volume }),
       toggleFavorite: (soundId) =>
         set((state) => ({
@@ -32,7 +37,11 @@ export const useSettings = create<SettingsState>()(
       name: 'luna-settings',
       version: 1,
       storage: createJSONStorage(() => AsyncStorage),
-      partialize: ({ volume, favorites }) => ({ volume, favorites }),
+      partialize: ({ volume, favorites, webTipDismissed }) => ({
+        volume,
+        favorites,
+        webTipDismissed,
+      }),
     },
   ),
 );

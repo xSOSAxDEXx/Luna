@@ -1,11 +1,13 @@
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { player, usePlayer } from '@/audio/player';
 import { formatRemaining, progress } from '@/audio/timer';
 import { AppText } from '@/components/AppText';
 import { ChevronDownIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/icons';
+import { Notice } from '@/components/Notice';
 import { QuickAddButtons } from '@/components/QuickAddButtons';
+import { WebTip } from '@/components/WebTip';
 import { Screen } from '@/components/Screen';
 import { TimerRing } from '@/components/TimerRing';
 import { VolumeSlider } from '@/components/VolumeSlider';
@@ -16,10 +18,13 @@ import { audioFade } from '@/theme/motion';
 
 /** Now playing: the timer ring, quick-add buttons and controls. */
 export default function PlayerScreen() {
-  const { status, sound, timer } = usePlayer();
+  const { status, sound, timer, pausedExternally } = usePlayer();
   const volume = useSettings((s) => s.volume);
   const setVolume = useSettings((s) => s.setVolume);
   const now = useNow(1000, status === 'playing');
+  // Keep the ring comfortably sized on short screens, where notices also need room.
+  const { height } = useWindowDimensions();
+  const ringSize = Math.max(180, Math.min(260, Math.round(height * 0.3)));
 
   const close = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
@@ -63,7 +68,7 @@ export default function PlayerScreen() {
       </View>
 
       <View style={styles.ringWrap}>
-        <TimerRing progress={finished ? 0 : progress(timer, now)}>
+        <TimerRing size={ringSize} progress={finished ? 0 : progress(timer, now)}>
           <AppText
             // Big digits for "12 min"; calmer, smaller words for everything else.
             variant={/^\d/.test(label) ? 'timer' : 'title'}
@@ -87,6 +92,13 @@ export default function PlayerScreen() {
 
       {/* Controls sit low on the screen, within thumb reach. */}
       <View style={styles.controls}>
+        {pausedExternally && status === 'paused' ? (
+          <Notice
+            title="Paused for a moment"
+            body="A call or another app needed the sound. Tap play when you're ready."
+          />
+        ) : null}
+        {playing ? <WebTip /> : null}
         <QuickAddButtons
           onAdd={(m) => player.addMinutes(m)}
           onUntilStop={() => player.playUntilStopped()}
@@ -155,7 +167,7 @@ const styles = StyleSheet.create({
     marginLeft: -space.md,
   },
   empty: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: space.sm },
-  ringWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', minHeight: 220 },
+  ringWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', minHeight: 180 },
   ringText: { textAlign: 'center', paddingHorizontal: space.lg },
   controls: { gap: space.lg },
   transport: {
