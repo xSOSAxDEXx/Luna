@@ -32,6 +32,7 @@ Note your iPhone model and iOS version (Settings → General → About).
 | W8  | **Offline**                         | Open it once online, then turn on airplane mode, close it from the app switcher, reopen from the Home Screen and play. | Does it open and play with no internet?                                                          |
 | W9  | **Mix and shuffle**                 | Create → Mix with 3 sounds; then Shuffle next to Noise.                                                                | Do all layers play together? Does shuffle play?                                                  |
 | W10 | **Seamless loop**                   | Play **White noise** for a minute.                                                                                     | Any click or gap around each 30-second mark?                                                     |
+| W11 | **Gentle wake-up**                  | Start a sound, switch on **Gentle wake-up at the end**, keep the screen on until the timer ends, then wait 5 minutes.  | Do chimes come in softly as the sound fades, rise slowly, and end with "Good morning"?           |
 
 When you're done: Settings → Playback check → **Share log**, and send it
 along with your notes for each test.

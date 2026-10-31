@@ -11,12 +11,19 @@ import { CloseIcon, PauseIcon, PlayIcon } from './icons';
 
 /** A slim "now playing" bar on the library, so the player is one tap away. */
 export function NowPlayingBar() {
-  const { status, sound, program, title, timer } = usePlayer();
+  const { status, sound, program, title, timer, phase } = usePlayer();
   const now = useNow(1000, status === 'playing');
   if (!sound || !program || !timer || status === 'idle') return null;
 
   const playing = status === 'playing';
-  const detail = status === 'finished' ? 'Sleep well' : formatRemaining(timer, now);
+  const detail =
+    status === 'finished'
+      ? phase === 'wake'
+        ? 'Good morning'
+        : 'Sleep well'
+      : phase === 'wake'
+        ? `Waking gently · ${formatRemaining(timer, now)}`
+        : formatRemaining(timer, now);
 
   return (
     <View style={styles.bar}>

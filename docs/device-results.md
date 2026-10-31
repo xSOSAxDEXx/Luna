@@ -28,11 +28,13 @@ Test build: **android-preview-2** (commit `eeb13b5`), 31 Oct 2026.
 Test build: **android-preview-3** (commit `6b9964c`), 31 Oct 2026. Log
 times are the phone's (Eastern).
 
-| #   | Test                | Result                    | Evidence                                                                                                                                                                                                                              |
-| --- | ------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 11  | Mix, screen off     | ✅ Pass (log) · ⏳ by ear | 3-layer mix (white noise, ocean waves, heartbeat), 10-min timer, locked at 15:37:51. Finished while backgrounded, **304 ms** late; the 3 s of outside pauses (15:37:54, 15:41:55) were added back. ~6.5 heartbeats/s (3 layers × ~2). |
-| 12  | Shuffle, screen off | ✅ Pass (log) · ⏳ by ear | Noise shuffle, Until I stop, 39 min mostly locked. `shuffle-next` exactly every 5:00 (7 changes); every sound played before a repeat, never twice in a row. Kept playing to the manual stop at 16:27:25.                              |
-| 13  | Saved mix           | ✅ Pass (log) · ⏳ by ear | After closing and reopening, the saved mix started from the library at 16:27:38. Edit and delete aren't logged; awaiting tester report.                                                                                               |
+| #   | Test                | Result  | Evidence                                                                                                                                                                                                                                                                                                                |
+| --- | ------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 11  | Mix, screen off     | ✅ Pass | 3-layer mix (white noise, ocean waves, heartbeat), 10-min timer, locked at 15:37:51. Finished while backgrounded, **304 ms** late, all layers fading together (tester report); the 3 s of lock-screen pauses (15:37:54, 15:41:55) paused and resumed all layers and were added back. ~6.5 heartbeats/s (3 layers × ~2). |
+| 12  | Shuffle, screen off | ✅ Pass | Noise shuffle, Until I stop, 39 min mostly locked. `shuffle-next` exactly every 5:00 (7 changes); every sound played before a repeat, never twice in a row. Kept playing to the manual stop at 16:27:25. Crossfades smooth (tester report).                                                                             |
+| 13  | Saved mix           | ✅ Pass | After closing and reopening, the saved mix started from the library at 16:27:38. Edit and soft-confirm delete worked (tester report).                                                                                                                                                                                   |
+
+**Android: step 4 passes on this phone.**
 
 Found while reading this log: the `start` line for shuffle listed only the
 first sound. Fixed after build 3; it now logs the whole set (`sounds`) and

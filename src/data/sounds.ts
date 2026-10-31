@@ -109,3 +109,46 @@ const byId = new Map(SOUNDS.map((s) => [s.id, s]));
 export function getSound(id: string): Sound | undefined {
   return byId.get(id);
 }
+
+/**
+ * Wake-up sounds (CLAUDE.md §3.4): brighter sounds the sleep sound
+ * crossfades into at the end of the timer. Not shown in the library.
+ */
+export type WakeSound = PlayableSound & { file: string; placeholder: boolean };
+
+export const WAKE_SOUNDS: WakeSound[] = [
+  // Generated in code (src/audio/chimes.ts, scripts/generate-noise.ts)
+  {
+    id: 'light-chimes',
+    name: 'Light chimes',
+    file: 'wake/light-chimes.wav',
+    source: require('@/assets/sounds/wake/light-chimes.wav'),
+    placeholder: false,
+  },
+  {
+    id: 'morning-birds',
+    name: 'Morning birds',
+    file: PLACEHOLDER_FILE,
+    source: PLACEHOLDER_SOURCE,
+    placeholder: true,
+  },
+  {
+    id: 'playful-melody',
+    name: 'Playful melody',
+    file: PLACEHOLDER_FILE,
+    source: PLACEHOLDER_SOURCE,
+    placeholder: true,
+  },
+];
+
+/** "Auto" picks this one. Light chimes is the only real wake-up sound so far. */
+export const AUTO_WAKE_SOUND_ID = 'light-chimes';
+
+/** The wake-up sound for a setting: 'auto' or a sound id (unknown ids fall back to auto). */
+export function resolveWakeSound(id: string): WakeSound {
+  const wanted = id === 'auto' ? AUTO_WAKE_SOUND_ID : id;
+  return (
+    WAKE_SOUNDS.find((s) => s.id === wanted) ??
+    WAKE_SOUNDS.find((s) => s.id === AUTO_WAKE_SOUND_ID)!
+  );
+}

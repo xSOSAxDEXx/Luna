@@ -133,11 +133,29 @@ outside pauses and the safe-sleep reminder work the same for each. The
 first voice (a mix's first layer, or shuffle's current sound) owns the
 lock screen; a lock-screen pause pauses every layer.
 
+## Gentle wake-up
+
+A switch on the player, **Gentle wake-up at the end** (off by default,
+remembered). When the sleep timer ends:
+
+1. In the sleep timer's last 30 seconds, the wake-up sound starts underneath
+   and rises to 15% of the chosen volume while the sleep sound fades out.
+2. For 5 minutes, it rises slowly (eased, so it stays soft at first) to the
+   chosen volume, never above it. The player shows a soft sunrise; quick-add
+   is hidden because the wake-up has a fixed length.
+3. It fades out over the last 30 seconds and the player says "Good morning".
+
+The wake-up sound is **Auto** (light chimes, for now) or a choice of Light
+chimes, Morning birds or Playful melody. It needs a timer, so "Until I stop"
+never wakes. Pausing holds the wake-up like the sleep timer. The curves are
+in `src/audio/wake.ts`; the engine runs them from timestamps, so they work
+with the screen off. Wake-up sounds aren't shown in the library.
+
 ## Sounds
 
-White, pink and brown noise are generated in code
-(`src/audio/noise.ts`, run by `scripts/generate-noise.ts`): 30-second
-seamless loops with a fixed seed, so every run produces identical files and
+White, pink and brown noise, and the wake-up's light chimes, are generated
+in code (`src/audio/noise.ts` and `src/audio/chimes.ts`, run by
+`scripts/generate-noise.ts`): seamless loops with a fixed seed, so every run produces identical files and
 no licence is needed. All other sounds must be CC0 or royalty-free and be
 recorded in [`assets/sounds/LICENSES.md`](./assets/sounds/LICENSES.md), which
 also lists the sounds still to source.

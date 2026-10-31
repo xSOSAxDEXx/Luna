@@ -1,15 +1,17 @@
 /**
  * Writes the seamless white, pink and brown noise loops bundled with the app,
- * plus the shared placeholder used by sounds that haven't been sourced yet.
+ * the "Light chimes" wake-up loop, and the shared placeholder used by sounds
+ * that haven't been sourced yet.
  *
  *   npm run noise
  *
  * The output is deterministic (fixed seed) and committed, so builds never
- * need to run this. Re-run it only after changing src/audio/noise.ts.
+ * need to run this. Re-run it only after changing src/audio/noise.ts or chimes.ts.
  */
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
+import { generateChimesLoop } from '../src/audio/chimes.ts';
 import { encodeWav, generateNoiseLoop, type NoiseColor } from '../src/audio/noise.ts';
 
 const SAMPLE_RATE = 32_000; // plenty for broadband noise; keeps files small
@@ -49,3 +51,15 @@ await mkdir(placeholderDir, { recursive: true });
 const placeholderFile = path.join(placeholderDir, 'PLACEHOLDER.wav');
 await writeFile(placeholderFile, encodeWav(placeholder, PLACEHOLDER_RATE));
 console.log(`wrote ${path.relative(process.cwd(), placeholderFile)}`);
+
+// Wake-up: light chimes. 22.05 kHz is plenty for notes up to ~7 kHz partials.
+const CHIMES_RATE = 22_050;
+const CHIMES_SECONDS = 24;
+const wakeDir = path.resolve(import.meta.dirname, '../assets/sounds/wake');
+await mkdir(wakeDir, { recursive: true });
+const chimesFile = path.join(wakeDir, 'light-chimes.wav');
+await writeFile(
+  chimesFile,
+  encodeWav(generateChimesLoop({ sampleRate: CHIMES_RATE, seconds: CHIMES_SECONDS }), CHIMES_RATE),
+);
+console.log(`wrote ${path.relative(process.cwd(), chimesFile)}`);

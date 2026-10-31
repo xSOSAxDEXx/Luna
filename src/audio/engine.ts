@@ -25,8 +25,12 @@ import {
   untilStop,
 } from './timer';
 import type { AudioOutput, CreateOutput, PlayableSound } from './types';
+import { WAKE_MS, wakeCrossfadeGain, wakeRiseGain } from './wake';
 
 export type PlayerStatus = 'idle' | 'playing' | 'paused' | 'finished';
+
+/** 'sleep' while the sleep timer runs; 'wake' during the gentle wake-up after it. */
+export type PlayerPhase = 'sleep' | 'wake';
 
 export type PlayerSnapshot = {
   status: PlayerStatus;
@@ -36,7 +40,14 @@ export type PlayerSnapshot = {
   sound: PlayableSound | null;
   /** Name to show: the sound, mix or shuffle set. */
   title: string;
+  /** The sleep timer, or during the wake-up phase, the wake-up's own five minutes. */
   timer: SleepTimer | null;
+  phase: PlayerPhase;
+  /**
+   * The wake-up sound to play when the sleep timer ends, or null for none
+   * (the sound just fades out). A preference: kept across sounds.
+   */
+  wakeUp: PlayableSound | null;
   /** The listener's chosen volume, 0..1, before any fade. */
   volume: number;
   /**
@@ -80,16 +91,19 @@ type Voice = {
   layer: number;
   /** Shuffle crossfade level, 0..1. */
   env: number;
+  /** The wake-up sound (its level follows the wake-up curve, not the mix). */
+  wake?: boolean;
 };
 
 type FadingOutput = { output: AudioOutput; from: number; volume: number };
 
-const EMPTY: Omit<PlayerSnapshot, 'volume' | 'sessionId'> = {
+const EMPTY: Omit<PlayerSnapshot, 'volume' | 'sessionId' | 'wakeUp'> = {
   status: 'idle',
   program: null,
   sound: null,
   title: '',
   timer: null,
+  phase: 'sleep',
   pausedExternally: false,
 };
 
@@ -110,6 +124,8 @@ export class PlayerEngine {
   private voices: Voice[] = [];
   /** Shuffle: the next sound while it crossfades in. */
   private incoming: Voice | null = null;
+  /** The wake-up sound while it crossfades in under the sleep sound's fade-out. */
+  private wakeVoice: Voice | null = null;
   private ticker: unknown = null;
   /** When the current fade-in began (start or resume). */
   private fadeInFrom = 0;
@@ -125,7 +141,12 @@ export class PlayerEngine {
   private orderIndex = 0;
   private trackStart = 0;
   private listeners = new Set<(s: PlayerSnapshot) => void>();
-  private snapshot: PlayerSnapshot = { ...EMPTY, volume: DEFAULT_VOLUME, sessionId: 0 };
+  private snapshot: PlayerSnapshot = {
+    ...EMPTY,
+    volume: DEFAULT_VOLUME,
+    wakeUp: null,
+    sessionId: 0,
+  };
 
   private readonly createOutput: CreateOutput;
   private readonly now: () => number;
@@ -185,6 +206,7 @@ export class PlayerEngine {
       sound: this.voices[0].sound,
       title: programTitle(program),
       timer,
+      phase: 'sleep',
       pausedExternally: false,
       sessionId: this.snapshot.sessionId + 1,
     });
@@ -252,7 +274,8 @@ export class PlayerEngine {
       this.start(program, minutes);
       return;
     }
-    if (!timer) return;
+    // The wake-up has its own fixed length.
+    if (!timer || this.snapshot.phase === 'wake') return;
     this.update({ timer: addTimerMinutes(timer, minutes, this.now()) });
     this.log('add-minutes', { minutes });
     this.tick();
@@ -265,7 +288,7 @@ export class PlayerEngine {
       this.start(program, 'untilStop');
       return;
     }
-    if (!timer) return;
+    if (!timer || this.snapshot.phase === 'wake') return;
     this.update({ timer: untilStop });
     this.log('until-stop');
     this.tick();
@@ -273,6 +296,18 @@ export class PlayerEngine {
 
   setVolume(volume: number) {
     this.update({ volume: clamp01(volume) });
+    this.tick();
+  }
+
+  /**
+   * Sets the wake-up sound for when the sleep timer ends (null: no wake-up).
+   * Once the wake-up has begun it carries on as it is.
+   */
+  setWakeUp(sound: PlayableSound | null) {
+    const { phase, status, wakeUp } = this.snapshot;
+    if (phase === 'wake' && status !== 'finished') return;
+    if ((wakeUp?.id ?? null) === (sound?.id ?? null)) return;
+    this.update({ wakeUp: sound });
     this.tick();
   }
 
@@ -304,10 +339,18 @@ export class PlayerEngine {
     this.lastTickAt = now;
 
     if (isExpired(timer, now)) {
-      this.finish(now);
-      return;
+      const { phase, wakeUp } = this.snapshot;
+      if (phase !== 'sleep' || !wakeUp || timer.kind !== 'countdown') {
+        this.finish(now);
+        return;
+      }
+      this.beginWake(wakeUp, timer.endsAt, now);
+      if (this.snapshot.status !== 'playing') return;
     }
-    if (program.kind === 'shuffle') this.advanceShuffle(now);
+    if (this.snapshot.phase === 'sleep') {
+      if (program.kind === 'shuffle') this.advanceShuffle(now);
+      this.syncWakeVoice(now);
+    }
     this.applyVolumes(now);
     this.updateNowPlaying(now);
   };
@@ -315,11 +358,12 @@ export class PlayerEngine {
   // ---- internals ----
 
   private allVoices(): Voice[] {
-    return this.incoming ? [...this.voices, this.incoming] : this.voices;
+    const extra = [this.incoming, this.wakeVoice].filter((v): v is Voice => v !== null);
+    return extra.length ? [...this.voices, ...extra] : this.voices;
   }
 
   private isLive(voice: Voice) {
-    return this.voices.includes(voice) || this.incoming === voice;
+    return this.voices.includes(voice) || this.incoming === voice || this.wakeVoice === voice;
   }
 
   private createVoice(sound: PlayableSound, layer: number): Voice {
@@ -339,14 +383,24 @@ export class PlayerEngine {
     return voice;
   }
 
-  /** The overall gain before per-layer volume: volume × fade-in × timer fade-out. */
-  private masterGain(now: number) {
-    const { volume, timer } = this.snapshot;
-    return (
-      volume *
-      fadeInGain(now - this.fadeInFrom, audioFade.startMs) *
-      (timer ? fadeOutGain(remainingMs(timer, now), audioFade.timerEndMs) : 1)
-    );
+  /**
+   * A voice's level right now: the chosen volume × the fade-in after
+   * start/resume × its curve. Sleep sounds: fade out at the timer's end, then
+   * mix-layer volume and shuffle crossfade. The wake-up sound: rises in as
+   * the sleep sound fades, then slowly over the wake-up, then fades at its end.
+   */
+  private voiceGain(voice: Voice, now: number) {
+    const { volume, timer, phase } = this.snapshot;
+    const base = volume * fadeInGain(now - this.fadeInFrom, audioFade.startMs);
+    if (!timer) return base * this.layerGain(voice) * voice.env;
+    const left = remainingMs(timer, now);
+    const fadeOut = fadeOutGain(left, audioFade.timerEndMs);
+    if (voice.wake) {
+      return phase === 'sleep'
+        ? base * wakeCrossfadeGain(left, audioFade.timerEndMs)
+        : base * wakeRiseGain(WAKE_MS - left) * fadeOut;
+    }
+    return base * fadeOut * this.layerGain(voice) * voice.env;
   }
 
   private layerGain(voice: Voice) {
@@ -355,8 +409,70 @@ export class PlayerEngine {
   }
 
   private applyVolumes(now: number) {
-    const master = this.masterGain(now);
-    for (const v of this.allVoices()) v.output.setVolume(master * this.layerGain(v) * v.env);
+    for (const v of this.allVoices()) v.output.setVolume(this.voiceGain(v, now));
+  }
+
+  /**
+   * In the sleep timer's last 30 s, with a wake-up chosen, the wake-up sound
+   * starts underneath and rises as the sleep sound fades. Adding time, "Until
+   * I stop" or switching the wake-up off takes it away again.
+   */
+  private syncWakeVoice(now: number) {
+    const { timer, wakeUp } = this.snapshot;
+    const wanted =
+      wakeUp && timer?.kind === 'countdown' && remainingMs(timer, now) < audioFade.timerEndMs
+        ? wakeUp
+        : null;
+    if (this.wakeVoice && this.wakeVoice.sound.id !== wanted?.id) {
+      this.wakeVoice.output.release();
+      this.wakeVoice = null;
+    }
+    if (wanted && !this.wakeVoice) {
+      this.wakeVoice = this.createWakeVoice(wanted);
+    }
+  }
+
+  private createWakeVoice(sound: PlayableSound): Voice {
+    const voice = this.createVoice(sound, 0);
+    voice.wake = true;
+    voice.output.setVolume(0);
+    voice.output.play();
+    return voice;
+  }
+
+  /**
+   * The sleep timer has ended: the wake-up sound takes over (the sleep sounds
+   * have faded to silence) for its five minutes. Works from the sleep timer's
+   * end time, so a late tick picks up part-way through, and one after the
+   * whole wake-up just finishes.
+   */
+  private beginWake(wakeUp: PlayableSound, sleepEndsAt: number, now: number) {
+    const timer: SleepTimer = {
+      kind: 'countdown',
+      endsAt: sleepEndsAt + WAKE_MS,
+      totalMs: WAKE_MS,
+      pausedRemainingMs: null,
+    };
+    const late = now - sleepEndsAt;
+    if (now >= timer.endsAt) {
+      this.update({ phase: 'wake', timer });
+      this.log('wake-start', { sound: wakeUp.id, lateMs: late, skipped: true });
+      this.finish(now);
+      return;
+    }
+    let wake = this.wakeVoice;
+    this.wakeVoice = null;
+    if (wake?.sound.id !== wakeUp.id) {
+      wake?.output.release();
+      wake = this.createWakeVoice(wakeUp);
+    }
+    for (const v of this.voices) v.output.release();
+    this.incoming?.output.release();
+    this.incoming = null;
+    this.voices = [wake];
+    this.nowPlayingText = '';
+    this.update({ phase: 'wake', timer, sound: wakeUp });
+    this.log('wake-start', { sound: wakeUp.id, lateMs: late });
   }
 
   private playMs(now: number) {
@@ -433,7 +549,12 @@ export class PlayerEngine {
     const { timer, title, program, sound } = this.snapshot;
     if (!timer || !sound) return;
     const left = formatRemaining(timer, now);
-    const text = program?.kind === 'shuffle' ? `${sound.name} · ${left}` : left;
+    const text =
+      this.snapshot.phase === 'wake'
+        ? `Waking gently · ${left}`
+        : program?.kind === 'shuffle'
+          ? `${sound.name} · ${left}`
+          : left;
     if (text !== this.nowPlayingText) {
       this.nowPlayingText = text;
       this.voices[0].output.showNowPlaying(title, text);
@@ -476,6 +597,7 @@ export class PlayerEngine {
     }
     this.voices = [];
     this.incoming = null;
+    this.wakeVoice = null;
     const timer = this.snapshot.timer;
     this.update({ status: 'finished' });
     // How late the stop was compared with the timer's end, for diagnostics.
@@ -491,19 +613,14 @@ export class PlayerEngine {
     const voices = this.allVoices();
     const playing = this.snapshot.status === 'playing';
     const now = this.now();
-    const master = playing ? this.masterGain(now) : 0;
     for (const v of voices) {
       if (!playing) v.output.release();
       // Start each fade from what's audible now (it may already be mid-fade).
-      else
-        this.fading.push({
-          output: v.output,
-          from: now,
-          volume: master * this.layerGain(v) * v.env,
-        });
+      else this.fading.push({ output: v.output, from: now, volume: this.voiceGain(v, now) });
     }
     this.voices = [];
     this.incoming = null;
+    this.wakeVoice = null;
     if (!playing || voices.length === 0) return;
     const stepMs = STOP_FADE_MS / STOP_FADE_STEPS;
     for (let i = 1; i <= STOP_FADE_STEPS; i++) {

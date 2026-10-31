@@ -7,11 +7,13 @@ import { AppText } from '@/components/AppText';
 import { ChevronDownIcon, PauseIcon, PlayIcon, StopIcon } from '@/components/icons';
 import { Notice } from '@/components/Notice';
 import { SafeSleepReminder } from '@/components/SafeSleepReminder';
+import { Sunrise } from '@/components/Sunrise';
 import { QuickAddButtons } from '@/components/QuickAddButtons';
 import { WebTip } from '@/components/WebTip';
 import { Screen } from '@/components/Screen';
 import { TimerRing } from '@/components/TimerRing';
 import { VolumeSlider } from '@/components/VolumeSlider';
+import { WakeUpToggle } from '@/components/WakeUpToggle';
 import { useNow } from '@/hooks/useNow';
 import { useSafeSleepReminder } from '@/safety/safeSleep';
 import { useSettings } from '@/store/settings';
@@ -20,11 +22,15 @@ import { audioFade } from '@/theme/motion';
 
 /** Now playing: the timer ring, quick-add buttons and controls. */
 export default function PlayerScreen() {
-  const { status, sound, program, title, timer, pausedExternally, sessionId } = usePlayer();
+  const { status, sound, program, title, timer, phase, wakeUp, pausedExternally, sessionId } =
+    usePlayer();
   const acknowledgedSession = useSafeSleepReminder((s) => s.acknowledgedSession);
   const acknowledgeSafety = useSafeSleepReminder((s) => s.acknowledge);
   const volume = useSettings((s) => s.volume);
   const setVolume = useSettings((s) => s.setVolume);
+  const wakeUpEnabled = useSettings((s) => s.wakeUpEnabled);
+  const wakeSoundId = useSettings((s) => s.wakeSoundId);
+  const setWakeUp = useSettings((s) => s.setWakeUp);
   const now = useNow(1000, status === 'playing');
   // Keep the ring comfortably sized on short screens, where notices also need room.
   const { height } = useWindowDimensions();
@@ -51,7 +57,23 @@ export default function PlayerScreen() {
     timer.kind === 'countdown' &&
     timer.endsAt - now <= audioFade.timerEndMs &&
     timer.endsAt - now > 0;
-  const label = finished ? 'Sleep well' : formatRemaining(timer, now);
+  const waking = phase === 'wake';
+  const label = finished ? (waking ? 'Good morning' : 'Sleep well') : formatRemaining(timer, now);
+  const caption = finished
+    ? waking
+      ? 'The wake-up has finished'
+      : 'The sound has faded out'
+    : status === 'paused'
+      ? 'Paused'
+      : waking
+        ? 'Waking gently'
+        : fading
+          ? wakeUp
+            ? 'Morning is on its way…'
+            : 'Drifting off…'
+          : timer.kind === 'untilStop'
+            ? 'No timer'
+            : 'left';
   // Shown every time a sound starts, until acknowledged. The sound is already
   // playing; the reminder takes the ring's place so it can't be missed.
   const showSafetyReminder = !finished && acknowledgedSession !== sessionId;
@@ -70,7 +92,11 @@ export default function PlayerScreen() {
           <AppText variant="title" numberOfLines={1} accessibilityRole="header">
             {title}
           </AppText>
-          {program.kind === 'shuffle' && !finished ? (
+          {waking && !finished ? (
+            <AppText variant="caption" tone="secondary" accessibilityLiveRegion="polite">
+              Waking up to {sound.name}
+            </AppText>
+          ) : program.kind === 'shuffle' && !finished ? (
             <AppText variant="caption" tone="secondary" accessibilityLiveRegion="polite">
               Playing now: {sound.name}
             </AppText>
@@ -82,6 +108,15 @@ export default function PlayerScreen() {
       <View style={styles.ringWrap}>
         {showSafetyReminder ? (
           <SafeSleepReminder onAcknowledge={() => acknowledgeSafety(sessionId)} />
+        ) : waking ? (
+          <Sunrise size={ringSize} progress={finished ? 1 : 1 - progress(timer, now)}>
+            <AppText variant="title" style={styles.ringText} accessibilityLiveRegion="polite">
+              {label}
+            </AppText>
+            <AppText variant="caption" tone="secondary">
+              {caption}
+            </AppText>
+          </Sunrise>
         ) : (
           <TimerRing size={ringSize} progress={finished ? 0 : progress(timer, now)}>
             <AppText
@@ -92,15 +127,7 @@ export default function PlayerScreen() {
               {label}
             </AppText>
             <AppText variant="caption" tone="secondary">
-              {finished
-                ? 'The sound has faded out'
-                : fading
-                  ? 'Drifting off…'
-                  : status === 'paused'
-                    ? 'Paused'
-                    : timer.kind === 'untilStop'
-                      ? 'No timer'
-                      : 'left'}
+              {caption}
             </AppText>
           </TimerRing>
         )}
@@ -115,11 +142,14 @@ export default function PlayerScreen() {
           />
         ) : null}
         {playing && !showSafetyReminder ? <WebTip /> : null}
-        <QuickAddButtons
-          onAdd={(m) => player.addMinutes(m)}
-          onUntilStop={() => player.playUntilStopped()}
-          untilStopActive={timer.kind === 'untilStop' && !finished}
-        />
+        {/* The wake-up has its own fixed length, so no adding time during it. */}
+        {waking && !finished ? null : (
+          <QuickAddButtons
+            onAdd={(m) => player.addMinutes(m)}
+            onUntilStop={() => player.playUntilStopped()}
+            untilStopActive={timer.kind === 'untilStop' && !finished}
+          />
+        )}
         <VolumeSlider value={volume} onChange={setVolume} />
         <View style={styles.transport}>
           <Pressable
@@ -153,7 +183,7 @@ export default function PlayerScreen() {
           <View style={styles.balance} />
         </View>
         {/* Layer volumes sit below the main controls so Play/Pause stays in thumb reach. */}
-        {program.kind === 'mix' && !finished ? (
+        {program.kind === 'mix' && !finished && !waking ? (
           <View style={styles.mixer}>
             <AppText variant="label" tone="secondary" accessibilityRole="header">
               Mix layers
@@ -167,6 +197,15 @@ export default function PlayerScreen() {
               />
             ))}
           </View>
+        ) : null}
+        {!finished && !waking ? (
+          <WakeUpToggle
+            enabled={wakeUpEnabled}
+            soundId={wakeSoundId}
+            hasTimer={timer.kind === 'countdown'}
+            onToggle={(enabled) => setWakeUp({ enabled })}
+            onPickSound={(soundId) => setWakeUp({ soundId })}
+          />
         ) : null}
       </View>
     </Screen>

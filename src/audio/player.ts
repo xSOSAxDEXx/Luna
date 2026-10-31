@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import { AppState, Platform } from 'react-native';
 
+import { resolveWakeSound } from '@/data/sounds';
 import { logEvent } from '@/diagnostics/log';
 import { useSettings } from '@/store/settings';
 
@@ -26,8 +27,15 @@ export const player = new PlayerEngine({
 // Keep the engine's volume in step with the saved setting, including after
 // the setting loads from storage.
 player.setVolume(useSettings.getState().volume);
+// The same for the gentle wake-up choice.
+const syncWakeUp = ({ wakeUpEnabled, wakeSoundId }: ReturnType<typeof useSettings.getState>) =>
+  player.setWakeUp(wakeUpEnabled ? resolveWakeSound(wakeSoundId) : null);
+syncWakeUp(useSettings.getState());
 useSettings.subscribe((state, prev) => {
   if (state.volume !== prev.volume) player.setVolume(state.volume);
+  if (state.wakeUpEnabled !== prev.wakeUpEnabled || state.wakeSoundId !== prev.wakeSoundId) {
+    syncWakeUp(state);
+  }
 });
 
 let backgroundSince: number | null = null;

@@ -26,6 +26,10 @@ export const night = {
   moonDeep: '#DDB06A',
   onMoon: '#1B1A33', // text/icons placed on a moon-gold fill
 
+  // Gentle wake-up: a soft, low sunrise (warm, never bright)
+  sunrise: '#F0B48C', // peach sun
+  sunriseSky: '#4A3466', // dusky plum glow at the horizon
+
   // Sound category tints (card backgrounds use these at low opacity)
   category: {
     noise: '#9AA3D8', // dusty periwinkle

@@ -12,9 +12,9 @@ _Last updated: 31 Oct 2026._
 | 1. Scaffold                                                                | ✅ Done                                                                                                                                                    |
 | 2. Library + single-sound playback, timer, quick-add, fade-out             | ✅ Done                                                                                                                                                    |
 | 3. Background / lock screen / offline                                      | ✅ Android verified on device (`docs/device-results.md`). ⏳ iPhone: testing the **web app** in Safari (`docs/iphone-web-testing.md`); results not in yet. |
-| 4. Loop / Mix / Shuffle + saved mixes                                      | ✅ Code done and tested (132 tests). ⏳ Device tests 11–13 in `docs/android-testing.md` on Android build #3.                                               |
-| 5. Wake-up cycle                                                           | **Next**                                                                                                                                                   |
-| 6. Recording + backup/restore                                              | —                                                                                                                                                          |
+| 4. Loop / Mix / Shuffle + saved mixes                                      | ✅ Done. Android tests 11–13 pass on build #3 (`docs/device-results.md`).                                                                                  |
+| 5. Wake-up cycle                                                           | ✅ Code done and tested. ⏳ Android test 14 and iPhone W11 on a phone.                                                                                     |
+| 6. Recording + backup/restore                                              | **Next**                                                                                                                                                   |
 | 7. Quiet-phone reminder, dim mode, volume safety, onboarding, affirmations | —                                                                                                                                                          |
 | 8. Polish, accessibility, store readiness                                  | —                                                                                                                                                          |
 
@@ -43,6 +43,11 @@ _Last updated: 31 Oct 2026._
 - Shuffle: 5 minutes per sound, 4 s equal-power crossfade; shuffle sets
   aren't saved. Mix layers default to 80%.
 - Unsourced sounds play one shared placeholder and show a "Placeholder" tag.
+- Wake-up: off by default; 30 s crossfade in under the sleep fade, starting
+  at 15% of the chosen volume and rising (eased) to it over 5 minutes, then
+  a 30 s fade out and "Good morning". Auto = Light chimes (generated in
+  code; birds and melody are placeholders). Quick-add hidden during the
+  wake-up; it needs a timer (not "Until I stop").
 
 ## Still open with the owner
 
