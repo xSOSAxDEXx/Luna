@@ -58,7 +58,7 @@ If something in Fuel conflicts with this doc, ask me before deviating.
 - All built-in sounds are **bundled with the app** — zero network needed to play.
 - **Native:** audio continues with the screen locked and when switching apps. Configure iOS `UIBackgroundModes: audio` and the Android foreground media service. Lock-screen / notification controls (play/pause, time remaining) via the media session.
 - The timer must keep accurate time in the background (compute from timestamps, not JS intervals that get throttled).
-- Handle interruptions gracefully (phone call, other app audio): pause, then offer resume.
+- Handle interruptions gracefully (phone call, other app audio): pause, then offer resume. **Decision (tested on Android):** after a phone call, resume automatically when the OS hands audio back (a sleeping baby shouldn't be left in silence), and don't count the call against the timer. If the OS doesn't hand audio back (e.g. another app keeps playing), stay paused and offer resume.
 - **Web/PWA:** service worker caches the app shell and all sound files for offline use; use the Media Session API for lock-screen controls. Background playback on mobile browsers (especially iOS Safari) is less reliable than native — test it and document the real limits in the README, and show a gentle in-app tip on web suggesting the installed app for best overnight results.
 
 ### 3.6 Record your own (lullabies & stories)
