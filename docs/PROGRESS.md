@@ -33,6 +33,8 @@ _Last updated: 31 Oct 2026._
   later; ask before adding.
 - **Hosting:** web app stays on GitHub Pages:
   https://xsosaxdexx.github.io/Luna/
+- **Times:** give all times to the owner in US Eastern time
+  (`America/New_York`: EDT until 1 Nov 2026, EST after), not UTC.
 
 ## Defaults I chose (owner can change)
 
@@ -66,7 +68,7 @@ _Last updated: 31 Oct 2026._
 - **Android test APK:** GitHub Actions → "Android preview build" (run with
   workflow_dispatch on `ccr-0c40b67b-ep5bux`); publishes a pre-release
   `android-preview-N` with the APK. Builds take ~15 min. Builds 1–3 so far;
-  **#3 has Mix/Shuffle** and was building at 18:05 UTC 31 Oct.
+  **#3 has Mix/Shuffle** (published 2:17 pm ET, 31 Oct).
 - **Web:** GitHub Actions → "Web app (GitHub Pages)" (workflow_dispatch).
 - This sandbox can't reach `github.io` or `docs.expo.dev` (proxy 403), and
   `expo install` needs `EXPO_OFFLINE=1`. Browser checks run against a local
