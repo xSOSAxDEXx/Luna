@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!--
+    Luna Beats mark: a crescent moon with music notes for stars.
+    Transparent background. This is the source artwork; scripts/generate-icons.mjs
+    places it on the night sky and renders every icon size from it.
+  -->
+  <defs>
+    <radialGradient id="moonFill" cx="0.32" cy="0.62" r="0.85">
+      <stop offset="0" stop-color="#FBE9C0" />
+      <stop offset="0.55" stop-color="#F2D59B" />
+      <stop offset="1" stop-color="#DDB06A" />
+    </radialGradient>
+    <radialGradient id="moonGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0.6" stop-color="#B8A9E8" stop-opacity="0.16" />
+      <stop offset="1" stop-color="#B8A9E8" stop-opacity="0" />
+    </radialGradient>
+    <mask id="crescent" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+      <rect width="1024" height="1024" fill="#000" />
+      <circle cx="450" cy="560" r="300" fill="#fff" />
+      <circle cx="590" cy="455" r="262" fill="#000" />
+    </mask>
+
+    <!-- Eighth note, drawn around its notehead at (0,0). About 120 units tall. -->
+    <g id="eighth">
+      <ellipse cx="0" cy="0" rx="26" ry="19" transform="rotate(-22)" />
+      <rect x="17" y="-112" width="10" height="110" rx="5" />
+      <path d="M22 -112 C 44 -98 70 -84 64 -46 C 58 -66 42 -76 22 -78 Z" />
+    </g>
+
+    <!-- Two beamed eighth notes. -->
+    <g id="beamed">
+      <ellipse cx="0" cy="0" rx="24" ry="18" transform="rotate(-22)" />
+      <ellipse cx="96" cy="-22" rx="24" ry="18" transform="rotate(-22 96 -22)" />
+      <rect x="16" y="-108" width="9" height="106" rx="4.5" />
+      <rect x="112" y="-130" width="9" height="106" rx="4.5" />
+      <path d="M16 -112 L 121 -134 L 121 -110 L 16 -88 Z" />
+    </g>
+
+    <!-- Soft four-point sparkle. -->
+    <path id="sparkle" d="M0 -22 C 3 -6 6 -3 22 0 C 6 3 3 6 0 22 C -3 6 -6 3 -22 0 C -6 -3 -3 -6 0 -22 Z" />
+  </defs>
+
+  <!-- Moon glow and crescent -->
+  <circle cx="450" cy="560" r="400" fill="url(#moonGlow)" />
+  <rect width="1024" height="1024" fill="url(#moonFill)" mask="url(#crescent)" />
+
+  <!-- Music-note stars in the open curve of the moon -->
+  <g fill="#E6DDF7">
+    <use href="#beamed" transform="translate(600 520) scale(1.25)" />
+    <use href="#eighth" transform="translate(790 300) scale(0.95)" />
+  </g>
+  <g fill="#C9BCEB">
+    <use href="#eighth" transform="translate(470 250) scale(0.62)" />
+  </g>
+
+  <!-- Small sparkles -->
+  <g fill="#F4ECD8">
+    <use href="#sparkle" transform="translate(860 560) scale(1.1)" />
+    <use href="#sparkle" transform="translate(640 170) scale(0.8)" />
+    <use href="#sparkle" transform="translate(250 250) scale(0.65)" />
+    <use href="#sparkle" transform="translate(800 790) scale(0.7)" />
+  </g>
+</svg>

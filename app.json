@@ -1,0 +1,61 @@
+{
+  "expo": {
+    "name": "Luna Beats",
+    "slug": "luna-beats",
+    "description": "Gentle sleep sounds for babies. One tap to calm.",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/brand/icon.png",
+    "scheme": "lunabeats",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#14173A",
+    "ios": {
+      "bundleIdentifier": "com.lunabeats.app",
+      "supportsTablet": true,
+      "icon": "./assets/brand/icon.png"
+    },
+    "android": {
+      "package": "com.lunabeats.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/brand/adaptive-foreground.png",
+        "backgroundImage": "./assets/brand/adaptive-background.png",
+        "monochromeImage": "./assets/brand/adaptive-monochrome.png",
+        "backgroundColor": "#0E1029"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "single",
+      "favicon": "./assets/brand/favicon.png",
+      "name": "Luna Beats",
+      "shortName": "Luna Beats",
+      "themeColor": "#0E1029",
+      "backgroundColor": "#14173A",
+      "description": "Gentle sleep sounds for babies. One tap to calm."
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#14173A",
+          "image": "./assets/brand/splash-icon.png",
+          "imageWidth": 180
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Luna Beats uses the microphone only when you record a lullaby or story for your little one. Recordings stay on your device.",
+          "enableBackgroundPlayback": true,
+          "enableBackgroundRecording": false
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
