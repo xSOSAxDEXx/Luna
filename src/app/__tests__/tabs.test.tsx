@@ -18,7 +18,7 @@ describe('tab navigation', () => {
       { initialUrl: '/' },
     );
 
-    expect(await screen.findByRole('header', { name: 'Luna Beats' })).toBeOnTheScreen();
+    expect(await screen.findByRole('header', { name: 'Luna Beatzzz' })).toBeOnTheScreen();
     expect(screen.getByLabelText('Sounds library')).toBeOnTheScreen();
     expect(screen.getByLabelText('My Sounds, your recordings')).toBeOnTheScreen();
     expect(screen.getByLabelText('Settings')).toBeOnTheScreen();

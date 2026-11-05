@@ -1,4 +1,4 @@
-# Luna Beats — Claude Code Kickoff Prompt
+# Luna Beatzzz — Claude Code Kickoff Prompt
 
 > Paste this into Claude Code from the root of the `Luna` repo (https://github.com/xSOSAxDEXx/Luna), or commit it as `CLAUDE.md` so it stays as standing project context. The repo is currently empty.
 
@@ -6,7 +6,7 @@
 
 ## 1. What we're building
 
-**Luna Beats** is a calm, simple sleep-sound tool for babies, shipped as a **mobile app (iOS App Store + Google Play)** and a **website** from one codebase. A tired parent opens it, taps one sound, and the baby gets soothing audio on a timer — nothing more complicated than that.
+**Luna Beatzzz** is a calm, simple sleep-sound tool for babies, shipped as a **mobile app (iOS App Store + Google Play)** and a **website** from one codebase. A tired parent opens it, taps one sound, and the baby gets soothing audio on a timer — nothing more complicated than that.
 
 Core promise: **one tap to calm.** Every decision should make the app quieter, softer, and easier to use one-handed in a dark room while holding a baby.
 
@@ -97,7 +97,7 @@ Baby sleep is stressful. The app should feel like a deep breath.
 - Accessibility: screen-reader labels on every control, respects reduced-motion and dynamic type.
 
 ### Logo & name
-- Name: **Luna Beats**
+- Name: **Luna Beatzzz**
 - Logo: a **crescent moon in a night sky, with small music notes as the stars** around it. Build it as an SVG (works for app icon, splash screen, favicon, and PWA icons). Soft gold moon, lavender/cream notes, deep indigo sky. Generate all required icon sizes for iOS, Android (adaptive icon), and web.
 
 ## 5. Suggested structure

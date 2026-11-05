@@ -91,7 +91,7 @@ export default function LibraryScreen() {
         <BreathingMoon size={64} />
         <View style={styles.headerText}>
           <AppText variant="title" accessibilityRole="header">
-            Luna Beats
+            Luna Beatzzz
           </AppText>
           <AppText variant="caption" tone="secondary">
             {AFFIRMATIONS[affirmation]}

@@ -125,7 +125,7 @@ function About() {
       </AppText>
       <Button label="Read the privacy policy" onPress={() => router.push('/privacy')} />
       <AppText variant="caption" tone="muted" style={styles.version}>
-        Luna Beats{version ? ` ${version}` : ''}
+        Luna Beatzzz{version ? ` ${version}` : ''}
       </AppText>
     </View>
   );
@@ -182,7 +182,7 @@ function BackupRestore() {
           grow
           disabled={busy != null}
           onPress={() => run('import')}
-          accessibilityHint="Choose a Luna Beats backup file"
+          accessibilityHint="Choose a Luna Beatzzz backup file"
         />
       </View>
       {outcome ? (

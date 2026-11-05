@@ -216,7 +216,7 @@ function NewRecording() {
 
       {stage === 'ask' ? (
         <View style={styles.block}>
-          <AppText variant="bodyStrong">May Luna Beats use your microphone?</AppText>
+          <AppText variant="bodyStrong">May Luna Beatzzz use your microphone?</AppText>
           <AppText tone="secondary">
             So you can sing a lullaby or read a story in your own voice. Your little one knows it
             best. We only listen while you record, and your recordings stay on this device.
@@ -228,11 +228,11 @@ function NewRecording() {
 
       {stage === 'blocked' ? (
         <View style={styles.block}>
-          <AppText variant="bodyStrong">The microphone is switched off for Luna Beats</AppText>
+          <AppText variant="bodyStrong">The microphone is switched off for Luna Beatzzz</AppText>
           <AppText tone="secondary">
             {Platform.OS === 'web'
               ? "That's fine. If you'd like to record, allow the microphone for this site in your browser's settings, then come back."
-              : "That's fine. If you'd like to record, you can switch it on in your phone's settings, under Luna Beats."}
+              : "That's fine. If you'd like to record, you can switch it on in your phone's settings, under Luna Beatzzz."}
           </AppText>
           {Platform.OS !== 'web' ? (
             <Button

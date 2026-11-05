@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Luna Beats",
+    "name": "Luna Beatzzz",
     "slug": "luna-beats",
     "description": "Gentle sleep sounds for babies. One tap to calm.",
     "version": "1.0.0",
@@ -61,8 +61,8 @@
     "web": {
       "output": "single",
       "favicon": "./assets/brand/favicon.png",
-      "name": "Luna Beats",
-      "shortName": "Luna Beats",
+      "name": "Luna Beatzzz",
+      "shortName": "Luna Beatzzz",
       "themeColor": "#0E1029",
       "backgroundColor": "#14173A",
       "description": "Gentle sleep sounds for babies. One tap to calm."
@@ -81,7 +81,7 @@
       [
         "expo-audio",
         {
-          "microphonePermission": "Luna Beats uses the microphone only when you record a lullaby or story for your little one. Recordings stay on your device.",
+          "microphonePermission": "Luna Beatzzz uses the microphone only when you record a lullaby or story for your little one. Recordings stay on your device.",
           "enableBackgroundPlayback": true,
           "enableBackgroundRecording": false
         }

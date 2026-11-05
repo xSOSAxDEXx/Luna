@@ -106,7 +106,7 @@ describe('recording a lullaby', () => {
   it('explains the microphone first, and only asks when the parent agrees', async () => {
     await renderApp();
     await fireEvent.press(screen.getByRole('button', { name: 'Record' }));
-    expect(await screen.findByText('May Luna Beats use your microphone?')).toBeOnTheScreen();
+    expect(await screen.findByText('May Luna Beatzzz use your microphone?')).toBeOnTheScreen();
     expect(screen.getByText(/your recordings stay on this device/)).toBeOnTheScreen();
     expect(audio().requestRecordingPermissionsAsync).not.toHaveBeenCalled();
 
@@ -120,14 +120,14 @@ describe('recording a lullaby', () => {
     await renderApp();
     await fireEvent.press(screen.getByRole('button', { name: 'Record' }));
     expect(await screen.findByRole('button', { name: 'Start recording' })).toBeOnTheScreen();
-    expect(screen.queryByText('May Luna Beats use your microphone?')).toBeNull();
+    expect(screen.queryByText('May Luna Beatzzz use your microphone?')).toBeNull();
   });
 
   it('is gentle when the microphone has been turned off', async () => {
     Object.assign(audio().__permission, { canAskAgain: false, status: 'denied' });
     await renderApp();
     await fireEvent.press(screen.getByRole('button', { name: 'Record' }));
-    expect(await screen.findByText(/switched off for Luna Beats/)).toBeOnTheScreen();
+    expect(await screen.findByText(/switched off for Luna Beatzzz/)).toBeOnTheScreen();
     expect(screen.getByRole('button', { name: 'Open settings' })).toBeOnTheScreen();
   });
 

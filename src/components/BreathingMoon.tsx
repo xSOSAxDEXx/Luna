@@ -46,7 +46,7 @@ export function BreathingMoon({ size = 120 }: { size?: number }) {
         source={mark}
         style={styles.image}
         accessibilityRole="image"
-        accessibilityLabel="Luna Beats moon"
+        accessibilityLabel="Luna Beatzzz moon"
       />
     </Animated.View>
   );

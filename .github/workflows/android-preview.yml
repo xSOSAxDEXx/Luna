@@ -63,14 +63,14 @@ jobs:
       - name: Name the APK
         id: apk
         run: |
-          name="luna-beats-preview-${{ github.run_number }}.apk"
+          name="luna-beatzzz-preview-${{ github.run_number }}.apk"
           cp android/app/build/outputs/apk/release/app-release.apk "$name"
           echo "path=$name" >> "$GITHUB_OUTPUT"
           ls -lh "$name"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: luna-beats-preview-${{ github.run_number }}
+          name: luna-beatzzz-preview-${{ github.run_number }}
           path: ${{ steps.apk.outputs.path }}
 
       - name: Publish as a pre-release

@@ -68,7 +68,7 @@ export function backupFileName(now = new Date()): string {
 export type ParseResult = { ok: true; backup: Backup } | { ok: false; message: string };
 
 const NOT_A_BACKUP =
-  "This doesn't look like a Luna Beats backup. Choose the file that starts with “luna-beats-backup”.";
+  "This doesn't look like a Luna Beatzzz backup. Choose the file that starts with “luna-beats-backup”.";
 
 const isObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v != null && !Array.isArray(v);
@@ -152,7 +152,7 @@ export function parseBackup(text: string): ParseResult {
     return {
       ok: false,
       message:
-        'This backup was made by a newer version of Luna Beats. Update the app, then try again.',
+        'This backup was made by a newer version of Luna Beatzzz. Update the app, then try again.',
     };
   }
   const settings = parseSettings(raw.settings);

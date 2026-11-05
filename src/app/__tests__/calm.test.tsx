@@ -68,7 +68,7 @@ describe('welcome (first launch)', () => {
   it('shows once, with the volume and distance tip, and never again', async () => {
     useSettings.setState({ onboarded: false });
     await renderApp();
-    expect(await screen.findByText('Welcome to Luna Beats')).toBeOnTheScreen();
+    expect(await screen.findByText('Welcome to Luna Beatzzz')).toBeOnTheScreen();
     await fireEvent.press(screen.getByRole('button', { name: 'Next' }));
     expect(screen.getByText('Soft, and across the room')).toBeOnTheScreen();
     expect(screen.getByText(/across the room from the crib/)).toBeOnTheScreen();
@@ -89,7 +89,7 @@ describe('welcome (first launch)', () => {
 
   it('does not show for someone who has seen it', async () => {
     await renderApp();
-    expect(screen.queryByText('Welcome to Luna Beats')).toBeNull();
+    expect(screen.queryByText('Welcome to Luna Beatzzz')).toBeNull();
   });
 });
 

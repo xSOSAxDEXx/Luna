@@ -17,7 +17,7 @@ import { space } from '@/theme';
  */
 const PAGES = [
   {
-    title: 'Welcome to Luna Beats',
+    title: 'Welcome to Luna Beatzzz',
     body: [
       'One tap to calm. Choose a sound and it plays straight away, with a 10-minute timer you can add to.',
       'When the timer ends, the sound fades out slowly. Never a sudden stop.',

@@ -19,7 +19,7 @@ export async function saveBackupFile(
   await Sharing.shareAsync(file.uri, {
     mimeType: 'application/json',
     UTI: 'public.json',
-    dialogTitle: 'Save your Luna Beats backup',
+    dialogTitle: 'Save your Luna Beatzzz backup',
   });
   return 'shared';
 }

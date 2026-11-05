@@ -1,4 +1,4 @@
-# Luna Beats
+# Luna Beatzzz
 
 Gentle sleep sounds for babies. One tap to calm.
 
@@ -70,7 +70,7 @@ Known limits to design around:
 
 - Only one player owns the lock-screen controls at a time. In Mix mode the
   first layer will own them.
-- Lock-screen controls need `interruptionMode: 'doNotMix'`, so Luna Beats
+- Lock-screen controls need `interruptionMode: 'doNotMix'`, so Luna Beatzzz
   pauses other apps' audio while it plays. That suits a sleep app.
 - On Android, background playback stops after about 3 minutes unless the
   player is active for the lock screen. The player always sets this.

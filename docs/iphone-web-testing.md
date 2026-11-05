@@ -13,7 +13,7 @@ for the in-app tip suggesting the installed app.
 1. Open the link in **Safari** (not Chrome; on iPhone only Safari can add
    a web app to the Home Screen properly).
 2. Tap **Share** → **Add to Home Screen** → **Add**.
-3. Open **Luna Beats** from the Home Screen icon (not from Safari).
+3. Open **Luna Beatzzz** from the Home Screen icon (not from Safari).
 4. Settings → **Playback check** → **Clear**.
 
 Note your iPhone model and iOS version (Settings → General → About).
@@ -26,7 +26,7 @@ Note your iPhone model and iOS version (Settings → General → About).
 | W2  | **Timer, screen on**                | Settings → **Start 2-minute test**. Keep the screen on.                                                                | Fades and stops at about 2:00?                                                                   |
 | W3  | **Timer, screen locked (key test)** | **Start 2-minute test**, lock the phone straight away, wait 3 minutes.                                                 | Does sound keep playing when locked? Does it stop at about 2:00, or keep going until you unlock? |
 | W4  | **Long play, locked**               | Start a sound, tap **Until I stop**, lock for 15 minutes.                                                              | Does it play the whole time, or stop after a while? Roughly when?                                |
-| W5  | **Lock-screen controls**            | Start a sound and lock the phone.                                                                                      | Does the lock screen show "Luna Beats" / the sound? Do pause and play work there?                |
+| W5  | **Lock-screen controls**            | Start a sound and lock the phone.                                                                                      | Does the lock screen show "Luna Beatzzz" / the sound? Do pause and play work there?                |
 | W6  | **Switching apps**                  | Play a sound, open another app for a minute, come back.                                                                | Keeps playing in the background?                                                                 |
 | W7  | **Silent switch**                   | Flip the ring/silent switch to silent, then play.                                                                      | Does it still play? (Safari often goes quiet on silent.)                                         |
 | W8  | **Offline**                         | Open it once online, then turn on airplane mode, close it from the app switcher, reopen from the Home Screen and play. | Does it open and play with no internet?                                                          |

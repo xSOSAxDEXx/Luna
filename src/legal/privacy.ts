@@ -16,7 +16,7 @@ export const PRIVACY_UPDATED = '31 October 2026';
 export type PrivacySection = { heading: string; paragraphs: string[] };
 
 export const PRIVACY_SUMMARY =
-  'Luna Beats does not collect, send or share any personal information. There are no accounts, ads, analytics or tracking. Everything you make in the app stays on your device.';
+  'Luna Beatzzz does not collect, send or share any personal information. There are no accounts, ads, analytics or tracking. Everything you make in the app stays on your device.';
 
 export const PRIVACY_SECTIONS: PrivacySection[] = [
   {
@@ -28,7 +28,7 @@ export const PRIVACY_SECTIONS: PrivacySection[] = [
   {
     heading: 'Microphone and recordings',
     paragraphs: [
-      'Luna Beats uses the microphone only while you record a lullaby or story, and only after you allow it. Recordings are saved on your device and are never uploaded. You can delete a recording at any time.',
+      'Luna Beatzzz uses the microphone only while you record a lullaby or story, and only after you allow it. Recordings are saved on your device and are never uploaded. You can delete a recording at any time.',
     ],
   },
   {
@@ -47,7 +47,7 @@ export const PRIVACY_SECTIONS: PrivacySection[] = [
   {
     heading: 'Children',
     paragraphs: [
-      'Luna Beats is made for parents and caregivers to use for their babies. It does not collect any information from or about children.',
+      'Luna Beatzzz is made for parents and caregivers to use for their babies. It does not collect any information from or about children.',
     ],
   },
   {
@@ -67,7 +67,7 @@ export function privacyContactLine(contact = PRIVACY_CONTACT): string {
 /** The policy as Markdown (docs/privacy-policy.md). */
 export function privacyMarkdown(contact = PRIVACY_CONTACT): string {
   return [
-    '# Luna Beats privacy policy',
+    '# Luna Beatzzz privacy policy',
     '',
     `_Last updated: ${PRIVACY_UPDATED}_`,
     '',
@@ -99,7 +99,7 @@ export function privacyHtml(contact = PRIVACY_CONTACT): string {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Privacy policy · Luna Beats</title>
+    <title>Privacy policy · Luna Beatzzz</title>
     <meta name="description" content="${escape(PRIVACY_SUMMARY)}" />
     <style>
       body { margin: 0; background: #14173a; color: #ece6f6; font: 17px/1.6 system-ui, -apple-system, sans-serif; }
@@ -114,13 +114,13 @@ export function privacyHtml(contact = PRIVACY_CONTACT): string {
   </head>
   <body>
     <main>
-    <h1>Luna Beats privacy policy</h1>
+    <h1>Luna Beatzzz privacy policy</h1>
     <p class="updated">Last updated: ${escape(PRIVACY_UPDATED)}</p>
     <p class="summary">${escape(PRIVACY_SUMMARY)}</p>
 ${sections}
     <h2>Contact</h2>
     <p>${escape(privacyContactLine(contact))}</p>
-    <p><a href="./">Open Luna Beats</a></p>
+    <p><a href="./">Open Luna Beatzzz</a></p>
     </main>
   </body>
 </html>

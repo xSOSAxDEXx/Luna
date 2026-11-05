@@ -127,7 +127,7 @@ export function createExpoOutput(sound: PlayableSound, events: OutputEvents): Au
     },
     showNowPlaying: (title, subtitle) => {
       if (released) return;
-      const metadata = { title, artist: subtitle, albumTitle: 'Luna Beats' };
+      const metadata = { title, artist: subtitle, albumTitle: 'Luna Beatzzz' };
       try {
         if (lockScreenActive) {
           player.updateLockScreenMetadata(metadata);

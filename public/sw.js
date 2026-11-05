@@ -1,4 +1,4 @@
-/* Luna Beats service worker.
+/* Luna Beatzzz service worker.
  *
  * - Install: precaches the whole web app, including every bundled sound, so
  *   the installed app works fully offline from the first launch. The file

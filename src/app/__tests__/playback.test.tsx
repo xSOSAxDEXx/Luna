@@ -59,7 +59,7 @@ describe('one tap to calm', () => {
     expect(audio.volume).toBeLessThanOrEqual(0.35);
     expect(audio.setActiveForLockScreen).toHaveBeenCalledWith(
       true,
-      { title: 'Brown noise', artist: '10 min', albumTitle: 'Luna Beats' },
+      { title: 'Brown noise', artist: '10 min', albumTitle: 'Luna Beatzzz' },
       { isLiveStream: true },
     );
 

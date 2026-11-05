@@ -52,7 +52,7 @@ describe('backup format', () => {
     for (const text of ['not json', '{}', '[]', JSON.stringify({ format: 'other' })]) {
       const parsed = parseBackup(text);
       expect(parsed.ok).toBe(false);
-      if (!parsed.ok) expect(parsed.message).toMatch(/doesn't look like a Luna Beats backup/);
+      if (!parsed.ok) expect(parsed.message).toMatch(/doesn't look like a Luna Beatzzz backup/);
     }
   });
 

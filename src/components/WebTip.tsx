@@ -15,7 +15,7 @@ export function WebTip() {
   return (
     <Notice
       title="For all-night sound"
-      body="Phone browsers can pause audio when the screen locks. The Luna Beats app keeps playing reliably. In the browser, keep this page open."
+      body="Phone browsers can pause audio when the screen locks. The Luna Beatzzz app keeps playing reliably. In the browser, keep this page open."
       onDismiss={dismiss}
     />
   );
