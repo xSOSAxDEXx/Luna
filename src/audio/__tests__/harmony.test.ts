@@ -1,10 +1,12 @@
 import {
+  BOWL_SECONDS,
   HARMONY_SECONDS,
   harmony174,
   harmony396,
   harmony528,
   harmony639,
   omDrone,
+  singingBowl,
 } from '../harmony';
 import { normalize, rms } from '../noise';
 import { createRandom } from '../synth';
@@ -52,5 +54,43 @@ describe.each(TONES)('%s', (_name, render) => {
 
   it('is the same every time (fixed seed)', () => {
     expect(render(FS, N, createRandom(7))).toEqual(raw);
+  });
+});
+
+describe('singing bowl', () => {
+  const n = FS * BOWL_SECONDS;
+  const raw = singingBowl(FS, n, createRandom(7));
+  const loop = normalize(raw, 0.08, 0.9);
+
+  it('loops without a click, even with a ring wrapping past the end', () => {
+    let typical = 0;
+    for (let i = 1; i < n; i++) typical += Math.abs(loop[i] - loop[i - 1]);
+    typical /= n - 1;
+    expect(Math.abs(loop[0] - loop[n - 1])).toBeLessThan(typical * 4);
+  });
+
+  it('is struck softly: no strike jumps far above the ring', () => {
+    const win = Math.round(FS * 0.4);
+    const levels: number[] = [];
+    for (let i = 0; i + win <= n; i += win) levels.push(rms(loop.subarray(i, i + win)));
+    expect(20 * Math.log10(Math.max(...levels) / rms(loop))).toBeLessThan(8);
+    // It rings on between strikes rather than falling silent.
+    expect(20 * Math.log10(Math.min(...levels) / rms(loop))).toBeGreaterThan(-14);
+  });
+
+  it('swells into each strike (a padded mallet, not a click)', () => {
+    // The first 10 ms after the loudest moment's onset stay well below its peak.
+    let peakAt = 0;
+    for (let i = 0; i < n; i++) if (Math.abs(loop[i]) > Math.abs(loop[peakAt])) peakAt = i;
+    const before = loop.subarray(
+      Math.max(0, peakAt - Math.round(FS * 0.06)),
+      peakAt - Math.round(FS * 0.05),
+    );
+    const early = before.reduce((m, v) => Math.max(m, Math.abs(v)), 0);
+    expect(early).toBeLessThan(Math.abs(loop[peakAt]));
+  });
+
+  it('is the same every time (fixed seed)', () => {
+    expect(singingBowl(FS, n, createRandom(7))).toEqual(raw);
   });
 });

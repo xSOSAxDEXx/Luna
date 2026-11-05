@@ -192,3 +192,48 @@ export function omDrone(fs: number, n: number, random: Random): Float32Array {
   const shaped = lowpass(multiply(hum, swell(n, 0.1)), fs, 1400, 2);
   return withBed(shaped, lowpass(brownNoise(n, random), fs, 500));
 }
+
+/** Singing bowl loops are a little longer: three strikes about 12 s apart. */
+export const BOWL_SECONDS = 36;
+
+/**
+ * Singing Bowl: a soft-struck bowl that rings and fades slowly, three
+ * strikes per loop. Built from a bowl's uneven (inharmonic) overtones, each
+ * fading at its own pace, with the high ones quiet and quick to fade. The
+ * main note is 216 Hz (A at A=432 tuning). A padded mallet: each strike
+ * swells in over about 70 ms instead of clicking. A real bowl's slow
+ * "warble" is kept to a faint shimmer (about 1 dB), so it never pulses.
+ */
+export function singingBowl(fs: number, n: number, random: Random): Float32Array {
+  const f0 = 216;
+  // [ratio, level, decay in seconds]
+  const modes: [number, number, number][] = [
+    [1, 1, 10],
+    [2.71, 0.38, 4.5],
+    [5.18, 0.06, 2],
+    [8.21, 0.015, 1],
+  ];
+  const strikes = 3;
+  const out = new Float32Array(n);
+  const ring = Math.round(Math.min(n, 30 * fs));
+  const attack = Math.round(0.07 * fs);
+  for (let s = 0; s < strikes; s++) {
+    const at = ((s + (random() - 0.5) * 0.1) / strikes) * n;
+    const velocity = [1, 0.82, 0.9][s % 3];
+    const phases = modes.map(() => random() * TAU);
+    addEvent(out, at, ring, (k) => {
+      const t = k / fs;
+      // The last second of the ring fades to nothing (it's tiny by then anyway).
+      const tail = k > ring - fs ? (ring - k) / fs : 1;
+      let v = 0;
+      modes.forEach(([ratio, level, decay], m) => {
+        const f = f0 * ratio;
+        v += level * Math.exp(-t / decay) * Math.sin(phases[m] + TAU * f * t);
+        // The faint warble: a second, slightly sharper copy of the main note.
+        if (m === 0) v += 0.06 * Math.exp(-t / decay) * Math.sin(TAU * (f + 0.35) * t);
+      });
+      return velocity * fadeIn(k, attack) * tail * v;
+    });
+  }
+  return lowpass(out, fs, 2000, 2);
+}

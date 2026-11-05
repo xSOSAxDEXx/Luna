@@ -14,12 +14,14 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import {
+  BOWL_SECONDS,
   HARMONY_SECONDS,
   harmony174,
   harmony396,
   harmony528,
   harmony639,
   omDrone,
+  singingBowl,
 } from '../src/audio/harmony.ts';
 import { encodeWav, normalize } from '../src/audio/noise.ts';
 import { createRandom, type Random } from '../src/audio/synth.ts';
@@ -30,6 +32,7 @@ type Tone = {
   file: string;
   rms: number;
   seed: number;
+  seconds?: number;
   render: (fs: number, n: number, random: Random) => Float32Array;
 };
 
@@ -38,6 +41,7 @@ const TONES: Tone[] = [
   { file: 'harmony-396.wav', rms: 0.061, seed: 396, render: harmony396 },
   { file: 'harmony-528.wav', rms: 0.06, seed: 528, render: harmony528 },
   { file: 'harmony-639.wav', rms: 0.059, seed: 639, render: harmony639 },
+  { file: 'bowl-soft.wav', rms: 0.062, seed: 216, seconds: BOWL_SECONDS, render: singingBowl },
   { file: 'om-drone.wav', rms: 0.064, seed: 1361, render: omDrone },
 ];
 
@@ -46,7 +50,7 @@ const outDir = path.resolve(import.meta.dirname, '../assets/sounds/harmony');
 await mkdir(outDir, { recursive: true });
 for (const tone of TONES) {
   if (only && !tone.file.includes(only)) continue;
-  const n = SAMPLE_RATE * HARMONY_SECONDS;
+  const n = SAMPLE_RATE * (tone.seconds ?? HARMONY_SECONDS);
   const samples = normalize(tone.render(SAMPLE_RATE, n, createRandom(tone.seed)), tone.rms, 0.9);
   const file = path.join(outDir, tone.file);
   await writeFile(file, encodeWav(samples, SAMPLE_RATE));
