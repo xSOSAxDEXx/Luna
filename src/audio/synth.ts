@@ -206,6 +206,11 @@ export function hz(note: string): number {
   return 440 * 2 ** (semitones / 12);
 }
 
+/** A note's frequency with A4 tuned to `a4` Hz instead of 440 (e.g. 432). */
+export function tuned(note: string, a4: number): number {
+  return hz(note) * (a4 / 440);
+}
+
 /** A seeded random source for one sound, so each sound is repeatable on its own. */
 export function seeded(seed: number): Random {
   return createRandom(seed);

@@ -8,8 +8,9 @@ import {
   omDrone,
   singingBowl,
 } from '../harmony';
+import { musicBox432, PIECES_432, slowPiano432 } from '../music';
 import { normalize, rms } from '../noise';
-import { createRandom } from '../synth';
+import { createRandom, hz, tuned } from '../synth';
 
 /**
  * Harmony Tones, rendered at a low sample rate for speed. Checks: soft,
@@ -92,5 +93,43 @@ describe('singing bowl', () => {
 
   it('is the same every time (fixed seed)', () => {
     expect(singingBowl(FS, n, createRandom(7))).toEqual(raw);
+  });
+});
+
+describe('432 Hz lullabies', () => {
+  const PIECES = [
+    ['music box', musicBox432, PIECES_432.musicBox.seconds],
+    ['slow piano', slowPiano432, PIECES_432.piano.seconds],
+  ] as const;
+
+  it('are tuned to A = 432 Hz', () => {
+    expect(tuned('A4', 432)).toBeCloseTo(432);
+    expect(tuned('C5', 432)).toBeCloseTo(hz('C5') * (432 / 440));
+  });
+
+  it('are slow: 60–80 beats a minute', () => {
+    // Music box: 48 beats; piano: 8 bars of 4.
+    expect((48 / PIECES_432.musicBox.seconds) * 60).toBeGreaterThanOrEqual(60);
+    expect((48 / PIECES_432.musicBox.seconds) * 60).toBeLessThanOrEqual(80);
+    expect((32 / PIECES_432.piano.seconds) * 60).toBe(60);
+  });
+
+  describe.each(PIECES)('%s', (_name, render, seconds) => {
+    const n = Math.round(FS * seconds);
+    const loop = normalize(render(FS, n), 0.08, 0.9);
+
+    it('loops without a click', () => {
+      let typical = 0;
+      for (let i = 1; i < n; i++) typical += Math.abs(loop[i] - loop[i - 1]);
+      typical /= n - 1;
+      expect(Math.abs(loop[0] - loop[n - 1])).toBeLessThan(typical * 4);
+    });
+
+    it('stays steady: no note jumps out', () => {
+      const win = Math.round(FS * 0.4);
+      const levels: number[] = [];
+      for (let i = 0; i + win <= n; i += win) levels.push(rms(loop.subarray(i, i + win)));
+      expect(20 * Math.log10(Math.max(...levels) / rms(loop))).toBeLessThan(5);
+    });
   });
 });

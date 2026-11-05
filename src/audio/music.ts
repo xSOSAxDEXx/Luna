@@ -17,6 +17,7 @@ import {
   pinkNoise,
   type Random,
   TAU,
+  tuned,
 } from './synth.ts';
 
 export type Instrument = {
@@ -456,4 +457,208 @@ export function morningBirds(fs: number, n: number, random: Random): Float32Arra
   }
   const air = lowpass(highpass(pinkNoise(n, random), fs, 900), fs, 4000);
   return mix([lowpass(birds, fs, 4500), 1], [air, 0.12]);
+}
+
+// ---- Harmony Tones: 432 Hz lullabies ----
+// Slow (60–72 beats a minute), simple, steady and in a major key. Tuned to
+// A = 432 Hz: every note is 432/440 of its usual pitch (about a third of a
+// semitone lower).
+
+const A432 = 432;
+
+/** A softer music box: the overtones are quieter and fade sooner. */
+const softMusicBox: Instrument = {
+  partials: [
+    [1, 1, 1.8],
+    [3, 0.06, 0.22],
+    [5.4, 0.015, 0.08],
+  ],
+  attack: 0.012,
+  release: 0.25,
+  held: false,
+};
+
+/** A softer piano for the slow lullaby: fewer bright partials, a gentler touch. */
+const softPiano: Instrument = {
+  partials: [
+    [1, 1, 3.2],
+    [2, 0.35, 2],
+    [3, 0.12, 1.3],
+    [4, 0.04, 0.8],
+  ],
+  attack: 0.016,
+  release: 0.5,
+  held: false,
+  inharmonicity: 0.0003,
+};
+
+export const PIECES_432 = {
+  /** "Twinkle, Twinkle": 48 beats at 72 beats a minute. */
+  musicBox: { seconds: 48 * (60 / 72) },
+  /** 8 bars of 4/4 at 60 beats a minute. */
+  piano: { seconds: 32 },
+};
+
+/** Music Box · 432 Hz: "Twinkle, Twinkle" (traditional), slow and soft, at A=432. */
+export function musicBox432(fs: number, n: number): Float32Array {
+  const beat = 60 / 72;
+  const tune: [string, number][] = [
+    ['C5', 1],
+    ['C5', 1],
+    ['G5', 1],
+    ['G5', 1],
+    ['A5', 1],
+    ['A5', 1],
+    ['G5', 2],
+    ['F5', 1],
+    ['F5', 1],
+    ['E5', 1],
+    ['E5', 1],
+    ['D5', 1],
+    ['D5', 1],
+    ['C5', 2],
+    ['G5', 1],
+    ['G5', 1],
+    ['F5', 1],
+    ['F5', 1],
+    ['E5', 1],
+    ['E5', 1],
+    ['D5', 2],
+    ['G5', 1],
+    ['G5', 1],
+    ['F5', 1],
+    ['F5', 1],
+    ['E5', 1],
+    ['E5', 1],
+    ['D5', 2],
+    ['C5', 1],
+    ['C5', 1],
+    ['G5', 1],
+    ['G5', 1],
+    ['A5', 1],
+    ['A5', 1],
+    ['G5', 2],
+    ['F5', 1],
+    ['F5', 1],
+    ['E5', 1],
+    ['E5', 1],
+    ['D5', 1],
+    ['D5', 1],
+    ['C5', 2],
+  ];
+  const out = new Float32Array(n);
+  let at = 0;
+  for (const [note, beats] of tune) {
+    playNote(out, fs, at * beat, tuned(note, A432), beats * beat, softMusicBox, 0.75);
+    at += beats;
+  }
+  // One low tine every two beats, following the harmony.
+  const lows = [
+    'C4',
+    'C4',
+    'F4',
+    'C4',
+    'F4',
+    'C4',
+    'G4',
+    'C4',
+    'C4',
+    'F4',
+    'C4',
+    'G4',
+    'C4',
+    'F4',
+    'C4',
+    'G4',
+    'C4',
+    'C4',
+    'F4',
+    'C4',
+    'F4',
+    'C4',
+    'G4',
+    'C4',
+  ];
+  lows.forEach((note, k) =>
+    playNote(out, fs, k * 2 * beat, tuned(note, A432), 2 * beat, softMusicBox, 0.35),
+  );
+  return lowpass(out, fs, 3500, 2);
+}
+
+/** Slow Piano · 432 Hz: an original, simple tune at 60 beats a minute, at A=432. */
+export function slowPiano432(fs: number, n: number): Float32Array {
+  const beat = 1;
+  const out = new Float32Array(n);
+  // [chord: root, then the two notes played together on beat 3], melody
+  const bars: [string, [string, string], [string, number][]][] = [
+    [
+      'F2',
+      ['A3', 'C4'],
+      [
+        ['A4', 2],
+        ['C5', 2],
+      ],
+    ],
+    [
+      'D3',
+      ['F3', 'A3'],
+      [
+        ['D5', 2],
+        ['C5', 2],
+      ],
+    ],
+    [
+      'Bb2',
+      ['D3', 'F3'],
+      [
+        ['Bb4', 2],
+        ['D5', 2],
+      ],
+    ],
+    ['C3', ['E3', 'G3'], [['C5', 4]]],
+    [
+      'F2',
+      ['A3', 'C4'],
+      [
+        ['A4', 2],
+        ['C5', 2],
+      ],
+    ],
+    [
+      'A2',
+      ['C3', 'E3'],
+      [
+        ['E5', 2],
+        ['C5', 2],
+      ],
+    ],
+    [
+      'Bb2',
+      ['D3', 'F3'],
+      [
+        ['D5', 2],
+        ['Bb4', 2],
+      ],
+    ],
+    [
+      'C3',
+      ['E3', 'G3'],
+      [
+        ['C5', 2],
+        ['G4', 2],
+      ],
+    ],
+  ];
+  bars.forEach(([root, [a, b], melody], bar) => {
+    const t0 = bar * 4 * beat;
+    playNote(out, fs, t0, tuned(root, A432), 3.8 * beat, softPiano, 0.28);
+    playNote(out, fs, t0 + 2 * beat, tuned(a, A432), 1.9 * beat, softPiano, 0.18);
+    playNote(out, fs, t0 + 2 * beat, tuned(b, A432), 1.9 * beat, softPiano, 0.18);
+    let at = 0;
+    for (const [note, beats] of melody) {
+      playNote(out, fs, t0 + at * beat, tuned(note, A432), beats * beat * 0.95, softPiano, 0.34);
+      at += beats;
+    }
+  });
+  return lowpass(out, fs, 2500, 2);
 }
