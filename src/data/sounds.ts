@@ -25,8 +25,8 @@ export type Sound = PlayableSound & {
    */
   file: string;
   /**
-   * True while the real sound hasn't been sourced. These play the shared
-   * placeholder loop and carry a visible "Placeholder" tag.
+   * True for a sound whose real audio isn't ready yet: its card carries a
+   * visible "Placeholder" tag. None are placeholders today.
    */
   placeholder: boolean;
   /** A colour the parent picked (recordings); otherwise the category's tint. */
@@ -39,21 +39,6 @@ export const CATEGORIES: { key: SoundCategory; title: string }[] = [
   { key: 'rhythmic', title: 'Rhythmic' },
   { key: 'music', title: 'Music' },
 ];
-
-const PLACEHOLDER_FILE = 'placeholder/PLACEHOLDER.wav';
-const PLACEHOLDER_SOURCE = require('@/assets/sounds/placeholder/PLACEHOLDER.wav');
-
-function placeholder(id: string, name: string, category: SoundCategory, icon: SoundIcon): Sound {
-  return {
-    id,
-    name,
-    category,
-    icon,
-    file: PLACEHOLDER_FILE,
-    source: PLACEHOLDER_SOURCE,
-    placeholder: true,
-  };
-}
 
 export const SOUNDS: Sound[] = [
   // Noise: generated in code (scripts/generate-noise.ts)
@@ -85,27 +70,151 @@ export const SOUNDS: Sound[] = [
     placeholder: false,
   },
 
-  // Nature
-  placeholder('rain', 'Rain', 'nature', 'drop'),
-  placeholder('ocean-waves', 'Ocean waves', 'nature', 'waves'),
-  placeholder('stream', 'Stream', 'nature', 'waves'),
-  placeholder('wind', 'Wind', 'nature', 'wind'),
-  placeholder('forest-night', 'Forest night', 'nature', 'leaf'),
-  placeholder('crickets', 'Crickets', 'nature', 'moon'),
-
-  // Rhythmic
-  placeholder('heartbeat', 'Heartbeat', 'rhythmic', 'heart'),
-  placeholder('womb', 'Womb', 'rhythmic', 'heart'),
-  placeholder('shushing', 'Shushing', 'rhythmic', 'wind'),
-  placeholder('fan', 'Fan', 'rhythmic', 'fan'),
-  placeholder('car-ride', 'Car ride', 'rhythmic', 'car'),
-  placeholder('train', 'Train', 'rhythmic', 'train'),
-
-  // Music
-  placeholder('lullaby', 'Lullaby', 'music', 'note'),
-  placeholder('music-box', 'Music box', 'music', 'star'),
-  placeholder('piano', 'Soft piano', 'music', 'note'),
-  placeholder('harp', 'Gentle harp', 'music', 'note'),
+  // Nature, rhythmic and music: synthesised in code (src/audio/soundscapes.ts, music.ts)
+  {
+    id: 'rain',
+    name: 'Rain',
+    category: 'nature',
+    icon: 'drop',
+    file: 'nature/rain.wav',
+    source: require('@/assets/sounds/nature/rain.wav'),
+    placeholder: false,
+  },
+  {
+    id: 'ocean-waves',
+    name: 'Ocean waves',
+    category: 'nature',
+    icon: 'waves',
+    file: 'nature/ocean-waves.wav',
+    source: require('@/assets/sounds/nature/ocean-waves.wav'),
+    placeholder: false,
+  },
+  {
+    id: 'stream',
+    name: 'Stream',
+    category: 'nature',
+    icon: 'waves',
+    file: 'nature/stream.wav',
+    source: require('@/assets/sounds/nature/stream.wav'),
+    placeholder: false,
+  },
+  {
+    id: 'wind',
+    name: 'Wind',
+    category: 'nature',
+    icon: 'wind',
+    file: 'nature/wind.wav',
+    source: require('@/assets/sounds/nature/wind.wav'),
+    placeholder: false,
+  },
+  {
+    id: 'forest-night',
+    name: 'Forest night',
+    category: 'nature',
+    icon: 'leaf',
+    file: 'nature/forest-night.wav',
+    source: require('@/assets/sounds/nature/forest-night.wav'),
+    placeholder: false,
+  },
+  {
+    id: 'crickets',
+    name: 'Crickets',
+    category: 'nature',
+    icon: 'moon',
+    file: 'nature/crickets.wav',
+    source: require('@/assets/sounds/nature/crickets.wav'),
+    placeholder: false,
+  },
+  {
+    id: 'heartbeat',
+    name: 'Heartbeat',
+    category: 'rhythmic',
+    icon: 'heart',
+    file: 'rhythmic/heartbeat.wav',
+    source: require('@/assets/sounds/rhythmic/heartbeat.wav'),
+    placeholder: false,
+  },
+  {
+    id: 'womb',
+    name: 'Womb',
+    category: 'rhythmic',
+    icon: 'heart',
+    file: 'rhythmic/womb.wav',
+    source: require('@/assets/sounds/rhythmic/womb.wav'),
+    placeholder: false,
+  },
+  {
+    id: 'shushing',
+    name: 'Shushing',
+    category: 'rhythmic',
+    icon: 'wind',
+    file: 'rhythmic/shushing.wav',
+    source: require('@/assets/sounds/rhythmic/shushing.wav'),
+    placeholder: false,
+  },
+  {
+    id: 'fan',
+    name: 'Fan',
+    category: 'rhythmic',
+    icon: 'fan',
+    file: 'rhythmic/fan.wav',
+    source: require('@/assets/sounds/rhythmic/fan.wav'),
+    placeholder: false,
+  },
+  {
+    id: 'car-ride',
+    name: 'Car ride',
+    category: 'rhythmic',
+    icon: 'car',
+    file: 'rhythmic/car-ride.wav',
+    source: require('@/assets/sounds/rhythmic/car-ride.wav'),
+    placeholder: false,
+  },
+  {
+    id: 'train',
+    name: 'Train',
+    category: 'rhythmic',
+    icon: 'train',
+    file: 'rhythmic/train.wav',
+    source: require('@/assets/sounds/rhythmic/train.wav'),
+    placeholder: false,
+  },
+  {
+    id: 'lullaby',
+    name: 'Lullaby',
+    category: 'music',
+    icon: 'note',
+    file: 'music/lullaby.wav',
+    source: require('@/assets/sounds/music/lullaby.wav'),
+    placeholder: false,
+  },
+  {
+    id: 'music-box',
+    name: 'Music box',
+    category: 'music',
+    icon: 'star',
+    file: 'music/music-box.wav',
+    source: require('@/assets/sounds/music/music-box.wav'),
+    placeholder: false,
+  },
+  {
+    id: 'piano',
+    name: 'Soft piano',
+    category: 'music',
+    icon: 'note',
+    file: 'music/piano.wav',
+    source: require('@/assets/sounds/music/piano.wav'),
+    placeholder: false,
+  },
+  {
+    id: 'harp',
+    name: 'Gentle harp',
+    category: 'music',
+    icon: 'note',
+    file: 'music/harp.wav',
+    source: require('@/assets/sounds/music/harp.wav'),
+    placeholder: false,
+  },
 ];
 
 const byId = new Map(SOUNDS.map((s) => [s.id, s]));
@@ -129,23 +238,24 @@ export const WAKE_SOUNDS: WakeSound[] = [
     source: require('@/assets/sounds/wake/light-chimes.wav'),
     placeholder: false,
   },
+  // Synthesised in code (src/audio/music.ts)
   {
     id: 'morning-birds',
     name: 'Morning birds',
-    file: PLACEHOLDER_FILE,
-    source: PLACEHOLDER_SOURCE,
-    placeholder: true,
+    file: 'wake/morning-birds.wav',
+    source: require('@/assets/sounds/wake/morning-birds.wav'),
+    placeholder: false,
   },
   {
     id: 'playful-melody',
     name: 'Playful melody',
-    file: PLACEHOLDER_FILE,
-    source: PLACEHOLDER_SOURCE,
-    placeholder: true,
+    file: 'wake/playful-melody.wav',
+    source: require('@/assets/sounds/wake/playful-melody.wav'),
+    placeholder: false,
   },
 ];
 
-/** "Auto" picks this one. Light chimes is the only real wake-up sound so far. */
+/** "Auto" picks this one: the gentlest of the wake-up sounds. */
 export const AUTO_WAKE_SOUND_ID = 'light-chimes';
 
 /** The wake-up sound for a setting: 'auto' or a sound id (unknown ids fall back to auto). */

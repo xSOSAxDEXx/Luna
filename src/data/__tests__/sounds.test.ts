@@ -47,6 +47,10 @@ describe('sound catalogue', () => {
     }
   });
 
+  it('has real audio for every sound in the brief', () => {
+    expect(ALL.filter((s) => s.placeholder).map((s) => s.id)).toEqual([]);
+  });
+
   it('resolves the wake-up setting, falling back to auto', () => {
     expect(resolveWakeSound('auto').id).toBe('light-chimes');
     expect(resolveWakeSound('morning-birds').id).toBe('morning-birds');

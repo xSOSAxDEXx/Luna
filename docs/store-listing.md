@@ -89,8 +89,8 @@ device." Background audio: `UIBackgroundModes: audio`.
       (`PRIVACY_CONTACT` in `src/legal/privacy.ts`, then `npm run privacy`).
 - [ ] **Decide** whether to remove the Internet permission from Android
       (nothing in the app uses it).
-- [ ] Replace placeholder sounds with CC0/royalty-free recordings
-      (`assets/sounds/LICENSES.md`).
+- [x] Real audio for every sound (synthesised in code, original work;
+      `assets/sounds/LICENSES.md`). Listen to all of them on a phone first.
 - [ ] Remove `EXPO_PUBLIC_DIAGNOSTICS` from `.github/workflows/web-pages.yml`
       and make sure store builds don't set it (no Playback check log).
 - [ ] Release signing key for Google Play (test APKs use the debug key) and

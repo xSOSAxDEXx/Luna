@@ -42,11 +42,12 @@ _Last updated: 31 Oct 2026._
   shown in minutes, not seconds; default volume 35%.
 - Shuffle: 5 minutes per sound, 4 s equal-power crossfade; shuffle sets
   aren't saved. Mix layers default to 80%.
-- Unsourced sounds play one shared placeholder and show a "Placeholder" tag.
+- Sounds: synthesised (`src/audio/soundscapes.ts`, `music.ts`), balanced to
+  about −21.5 LUFS (music −23). A sound can still be flagged `placeholder`.
 - Wake-up: off by default; 30 s crossfade in under the sleep fade, starting
   at 15% of the chosen volume and rising (eased) to it over 5 minutes, then
-  a 30 s fade out and "Good morning". Auto = Light chimes (generated in
-  code; birds and melody are placeholders). Quick-add hidden during the
+  a 30 s fade out and "Good morning". Auto = Light chimes (all three
+  wake-up sounds are generated in code). Quick-add hidden during the
   wake-up; it needs a timer (not "Until I stop").
 
 - Recording: AAC mono 96 kbps; anything playing stops while recording;
@@ -80,8 +81,9 @@ _Last updated: 31 Oct 2026._
 - **PR into `main`**: the brief says push to `main`; all work is on branch
   `ccr-0c40b67b-ep5bux` (currently the repo's only branch). Not asked to
   open a PR yet.
-- **Real sound files**: everything except white/pink/brown noise is a
-  placeholder; needs CC0/royalty-free sources (`assets/sounds/LICENSES.md`).
+- **Sounds**: all synthesised in code (5 Nov). The owner may still want
+  real recordings for some (nature especially); swapping one is a file and a
+  LICENSES.md row.
 - Safe-sleep wording could use review by someone with child-safety
   expertise before release.
 
@@ -89,7 +91,8 @@ _Last updated: 31 Oct 2026._
 
 - Remove `EXPO_PUBLIC_DIAGNOSTICS: '1'` from `.github/workflows/web-pages.yml`
   (the Pages site shows the Playback check log for testing).
-- Replace placeholder sounds; store signing (test APKs use the debug key).
+- Listen to every sound on a phone (Android test 24, iPhone W17); store
+  signing (test APKs use the debug key).
 
 ## How things are built and tested
 

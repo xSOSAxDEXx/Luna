@@ -248,17 +248,31 @@ text, form answers and the launch checklist are in
 
 ## Sounds
 
-White, pink and brown noise, and the wake-up's light chimes, are generated
-in code (`src/audio/noise.ts` and `src/audio/chimes.ts`, run by
-`scripts/generate-noise.ts`): seamless loops with a fixed seed, so every run produces identical files and
-no licence is needed. All other sounds must be CC0 or royalty-free and be
-recorded in [`assets/sounds/LICENSES.md`](./assets/sounds/LICENSES.md), which
-also lists the sounds still to source.
+Every sound is synthesised in code and written by `npm run noise`
+(`scripts/generate-noise.ts`): seamless loops with fixed seeds, so every run
+produces identical files and no licence is needed.
 
-The catalogue is `src/data/sounds.ts`. Sounds not sourced yet play a shared
-placeholder loop and show a **Placeholder** tag. Tests check that every
-sound file exists, every real sound has a licence entry, and every
-placeholder is listed as still to source.
+- **Noise:** `src/audio/noise.ts` (white, pink, brown).
+- **Nature and rhythmic:** `src/audio/soundscapes.ts`: rain, ocean waves,
+  stream, wind, forest night, crickets; heartbeat (64 bpm), womb, shushing,
+  fan, car ride, train. Built from filtered noise and soft synthesised
+  events (drops, bubbles, chirps, beats). Low sounds keep some energy above
+  ~150 Hz so they can be heard on a phone speaker.
+- **Music and wake-up:** `src/audio/music.ts`: soft instruments made from a
+  few sine partials. The lullaby, piano, harp and playful wake-up tunes are
+  original; the music box plays "Twinkle, Twinkle" (traditional, public
+  domain). Morning birds and light chimes (`chimes.ts`) for the wake-up.
+- **Levels:** balanced by ear-weighted loudness (ffmpeg's EBU R128 meter)
+  against the pink noise: about −21.5 LUFS for steady sounds, −23 for music.
+  About 22 MB of WAV in total (WAV, because compressed formats leave a gap at
+  the loop point on some phones).
+
+The catalogue is `src/data/sounds.ts`, with every file listed in
+[`assets/sounds/LICENSES.md`](./assets/sounds/LICENSES.md). Any sound can
+later be swapped for a recorded CC0 or royalty-free one; until its audio is
+ready a sound can be marked `placeholder: true` to show a **Placeholder**
+tag. Tests check every file exists and has a licence row, and that each
+synthesised sound is soft, loops without a click, and is repeatable.
 
 ## Testing on a phone
 

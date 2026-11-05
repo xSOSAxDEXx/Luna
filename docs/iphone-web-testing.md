@@ -38,6 +38,7 @@ Note your iPhone model and iOS version (Settings → General → About).
 | W14 | **Backup and restore**              | Settings → **Make a backup** (saves to Files → Downloads). Delete the recording, then **Restore** and pick the file.   | Does the file save? Does restore bring the recording back?                                       |
 | W15 | **Welcome and quiet card**          | Open the site in a private tab. Then play a sound and tap **I understand**.                                            | Do the welcome pages show? Does the quiet-your-phone card show, with the Focus hint?             |
 | W16 | **Dim mode**                        | Play a sound and don't touch the screen for 10 s.                                                                      | Does it fade to near-black with the moon and time? Does a tap bring it back?                     |
+| W17 | **Every sound**                     | Play each sound for about 20 seconds.                                                                                  | Does each sound like its name? Any that are harsh, too quiet or have a click at the loop?        |
 
 When you're done: Settings → Playback check → **Share log**, and send it
 along with your notes for each test.

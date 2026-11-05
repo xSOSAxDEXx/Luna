@@ -73,6 +73,12 @@ Test build: **android-preview-6** (step 7). Waiting for results.
 | 22  | Dim mode         | ⏳ Pending |          |
 | 23  | Soft volume cap  | ⏳ Pending |          |
 
+### Sounds (all real, 5 Nov)
+
+| #   | Test        | Result     | Evidence |
+| --- | ----------- | ---------- | -------- |
+| 24  | Every sound | ⏳ Pending |          |
+
 ## Not yet tested
 
 - **iPhone (iOS):** no device yet. The code paths are the same, but iOS may

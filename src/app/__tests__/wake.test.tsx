@@ -71,7 +71,7 @@ describe('gentle wake-up', () => {
 
     // Pick a sound, or leave it on Auto.
     expect(screen.getByRole('radio', { name: 'Auto' })).toBeSelected();
-    await fireEvent.press(screen.getByRole('radio', { name: 'Morning birds (placeholder)' }));
+    await fireEvent.press(screen.getByRole('radio', { name: 'Morning birds' }));
     expect(player.getSnapshot().wakeUp?.id).toBe('morning-birds');
   });
 

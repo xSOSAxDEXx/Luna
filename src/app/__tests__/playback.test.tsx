@@ -115,10 +115,11 @@ describe('one tap to calm', () => {
     expect(screen.queryByRole('header', { name: 'Favorites' })).toBeNull();
   });
 
-  it('marks unsourced sounds as placeholders', async () => {
+  it('has real audio for every sound (no placeholder tags)', async () => {
     await renderApp();
-    const rain = screen.getByRole('button', { name: 'Rain, placeholder sound' });
-    expect(within(rain).getByText('Placeholder')).toBeOnTheScreen();
+    const rain = screen.getByRole('button', { name: 'Rain' });
+    expect(within(rain).queryByText('Placeholder')).toBeNull();
+    expect(screen.queryByText('Placeholder')).toBeNull();
   });
 
   it('shows the safe-sleep reminder every time a sound starts, while it plays', async () => {
