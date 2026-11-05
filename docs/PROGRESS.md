@@ -71,6 +71,15 @@ _Last updated: 31 Oct 2026._
   VIBRATE and external storage; INTERNET kept for now (owner to decide).
   Store text and launch checklist: `docs/store-listing.md`.
 
+- Harmony Tones (Nov 2026, owner's brief): new category, 8 synthesised
+  sounds at −25 LUFS; the owner found round 1 busy/aggressive/pulsing, so
+  round 2 is darker, simpler and steadier (swell 1.6–2.9 dB). 432 Hz
+  lullabies are sleep-only. Ready-made mixes are saved mixes (owner's
+  choice): editable, deletable, added once via the mixes store's v2
+  migration. Banned-claim-word test covers src, scripts, public, app.json,
+  store listing, privacy policy and LICENSES.md. Optional 417/741 Hz not
+  built (behind a flag "decide later"); 852/963 Hz skipped per the brief.
+
 ## Still open with the owner
 
 - **App ID** `com.lunabeats.app` is a placeholder; must be final before the

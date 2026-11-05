@@ -36,6 +36,7 @@ export const night = {
     nature: '#93C9AE', // sage
     rhythmic: '#E3AFA6', // dusty rose
     music: '#CDB1EC', // lilac
+    harmony: '#7DB5BA', // dusky teal, for Harmony Tones
     mine: '#F2D59B', // moon gold, for the parent's own recordings
   },
 } as const;

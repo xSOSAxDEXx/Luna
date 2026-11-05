@@ -32,6 +32,11 @@ async function renderApp() {
   );
 }
 
+// These tests start with no saved mixes (a new install has the ready-made ones).
+beforeEach(() => {
+  useMixes.setState({ mixes: [] });
+});
+
 afterEach(() => {
   player.stop();
   fakePlayers().length = 0;

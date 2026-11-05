@@ -6,6 +6,7 @@ import { player, usePlayer } from '@/audio/player';
 import { single } from '@/audio/program';
 import { AppText } from '@/components/AppText';
 import { BreathingMoon } from '@/components/BreathingMoon';
+import { InfoIcon } from '@/components/icons';
 import { CreateCard, MixCard } from '@/components/MixCard';
 import { NowPlayingBar } from '@/components/NowPlayingBar';
 import { Screen } from '@/components/Screen';
@@ -15,7 +16,7 @@ import { CATEGORIES, type Sound, SOUNDS } from '@/data/sounds';
 import { mixToProgram, type SavedMix, useMixes } from '@/store/mixes';
 import { findSound, useRecordings, useRecordingSounds } from '@/store/recordings';
 import { useSettings } from '@/store/settings';
-import { MIN_TAP, radius, space } from '@/theme';
+import { colors, MIN_TAP, radius, space } from '@/theme';
 
 /**
  * The sound library: favorites first, then saved mixes, then each category
@@ -134,9 +135,20 @@ export default function LibraryScreen() {
         return (
           <View key={key} style={styles.section}>
             <View style={styles.sectionHeader}>
-              <AppText variant="label" tone="secondary" accessibilityRole="header">
-                {title}
-              </AppText>
+              <View style={styles.titleRow}>
+                <AppText variant="label" tone="secondary" accessibilityRole="header">
+                  {title}
+                </AppText>
+                {key === 'harmony' ? (
+                  <Pressable
+                    onPress={() => router.push('/about-tones')}
+                    accessibilityRole="button"
+                    accessibilityLabel="About these tones"
+                    style={({ pressed }) => [styles.info, pressed && styles.pressed]}>
+                    <InfoIcon color={colors.textMuted} size={20} />
+                  </Pressable>
+                ) : null}
+              </View>
               {sounds.length >= 2 ? (
                 <Pressable
                   onPress={() => shuffleCategory(title, sounds)}
@@ -183,6 +195,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  titleRow: { flexDirection: 'row', alignItems: 'center' },
+  info: {
+    width: MIN_TAP,
+    height: MIN_TAP,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: -space.sm,
   },
   shuffle: {
     minHeight: MIN_TAP,

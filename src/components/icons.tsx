@@ -97,6 +97,17 @@ export function CloseIcon({ color, size = 24 }: IconProps) {
   );
 }
 
+/** "About": a small circled i. */
+export function InfoIcon({ color, size = 22 }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Circle cx={12} cy={12} r={9} {...stroke(color)} />
+      <Path d="M12 11v5.5" {...stroke(color)} />
+      <Circle cx={12} cy={7.8} r={1.1} fill={color} />
+    </Svg>
+  );
+}
+
 const HEART =
   'M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20Z';
 
@@ -154,6 +165,20 @@ const soundPaths: Record<SoundIconName, (c: ColorValue) => ReactNode> = {
     </>
   ),
   star: (c) => <Path d={SPARKLE} {...stroke(c)} />,
+  // A soft wave inside a circle: a steady tone.
+  tone: (c) => (
+    <>
+      <Circle cx={12} cy={12} r={9} {...stroke(c)} />
+      <Path d="M6.5 12c1.4-3 2.8-3 4.1 0s2.8 3 4.1 0 2.4-2.6 2.8-1.2" {...stroke(c)} />
+    </>
+  ),
+  // A singing bowl, with a soft ring rising from it.
+  bowl: (c) => (
+    <>
+      <Path d="M4 12h16a8 7 0 0 1-16 0Z" {...stroke(c)} />
+      <Path d="M8.5 7.5c1.2-1.4 5.8-1.4 7 0M10 4.5c.8-.6 3.2-.6 4 0" {...stroke(c)} />
+    </>
+  ),
   // An open storybook, for bedtime stories.
   book: (c) => (
     <Path

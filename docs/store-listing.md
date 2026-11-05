@@ -17,6 +17,8 @@ Draft text and form answers for Google Play and the App Store. Items marked
 >
 > • White, pink and brown noise, nature, rhythmic sounds and soft music
 > • Add time with one tap, or play until you stop
+> • Harmony Tones: soft, steady tones inspired by Solfeggio tones and 432 Hz
+> music, singing bowls and a gentle hum
 > • Mix up to three sounds, or shuffle with soft crossfades
 > • Record your own lullabies and stories, in your voice
 > • Optional gentle wake-up with a soft sunrise
@@ -31,6 +33,9 @@ Draft text and form answers for Google Play and the App Store. Items marked
 > make stays on your device.
 
 Avoid medical claims (e.g. "treats colic", "prevents SIDS") in all store text.
+For Harmony Tones use "calming", "soft", "inspired by…", "many people find…";
+never claims that a frequency does something to the body. A test checks
+this file for banned words.
 
 ## Categories and ratings
 

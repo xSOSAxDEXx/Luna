@@ -39,6 +39,7 @@ Note your iPhone model and iOS version (Settings → General → About).
 | W15 | **Welcome and quiet card**          | Open the site in a private tab. Then play a sound and tap **I understand**.                                            | Do the welcome pages show? Does the quiet-your-phone card show, with the Focus hint?             |
 | W16 | **Dim mode**                        | Play a sound and don't touch the screen for 10 s.                                                                      | Does it fade to near-black with the moon and time? Does a tap bring it back?                     |
 | W17 | **Every sound**                     | Play each sound for about 20 seconds.                                                                                  | Does each sound like its name? Any that are harsh, too quiet or have a click at the loop?        |
+| W18 | **Harmony Tones**                   | Play each Harmony Tones sound, and lock the phone with one playing.                                                    | Soft, steady, no click at the loop? Keeps playing when locked?                                   |
 
 When you're done: Settings → Playback check → **Share log**, and send it
 along with your notes for each test.

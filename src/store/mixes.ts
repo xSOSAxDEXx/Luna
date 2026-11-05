@@ -22,6 +22,46 @@ type MixesState = {
   deleteMix: (id: string) => void;
 };
 
+/**
+ * Ready-made mixes, saved like the parent's own: they can play, edit or
+ * delete them. They're added once (on a new install, or when updating from
+ * a version without them) and never come back after being deleted.
+ * Harmony Tones sit about 3.5 dB under the other sounds, so they get the
+ * higher share here.
+ */
+export const PRESET_MIXES: SavedMix[] = [
+  {
+    id: 'preset-rain-528',
+    name: 'Rain + 528',
+    layers: [
+      { soundId: 'rain', volume: 0.55 },
+      { soundId: 'harmony-528', volume: 0.9 },
+    ],
+  },
+  {
+    id: 'preset-ocean-bowl',
+    name: 'Ocean + Singing Bowl',
+    layers: [
+      { soundId: 'ocean-waves', volume: 0.55 },
+      { soundId: 'bowl-soft', volume: 0.9 },
+    ],
+  },
+  {
+    id: 'preset-brown-174',
+    name: 'Brown Noise + 174',
+    layers: [
+      { soundId: 'brown-noise', volume: 0.5 },
+      { soundId: 'harmony-174', volume: 0.9 },
+    ],
+  },
+];
+
+/** Adds the presets that aren't already there (by id). */
+export function withPresets(mixes: SavedMix[]): SavedMix[] {
+  const have = new Set(mixes.map((m) => m.id));
+  return [...mixes, ...PRESET_MIXES.filter((p) => !have.has(p.id))];
+}
+
 function newId() {
   return `mix-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 }
@@ -30,7 +70,8 @@ function newId() {
 export const useMixes = create<MixesState>()(
   persist(
     (set, get) => ({
-      mixes: [],
+      // A new install starts with the ready-made mixes.
+      mixes: PRESET_MIXES,
       saveMix: (mix) => {
         const saved: SavedMix = {
           id: mix.id ?? newId(),
@@ -51,7 +92,15 @@ export const useMixes = create<MixesState>()(
     }),
     {
       name: 'luna-mixes',
-      version: 1,
+      // Version 2 added the ready-made mixes: add them once for people
+      // updating from version 1. After that, whatever they keep or delete stays.
+      version: 2,
+      migrate: (persisted, version) => {
+        const state = (persisted ?? {}) as { mixes?: SavedMix[] };
+        return {
+          mixes: version < 2 ? withPresets(state.mixes ?? []) : (state.mixes ?? []),
+        } as MixesState;
+      },
       storage: createJSONStorage(() => AsyncStorage),
       partialize: ({ mixes }) => ({ mixes }),
     },

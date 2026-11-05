@@ -18,6 +18,7 @@ import { Screen } from '@/components/Screen';
 import { TimerRing } from '@/components/TimerRing';
 import { VolumeSlider } from '@/components/VolumeSlider';
 import { WakeUpToggle } from '@/components/WakeUpToggle';
+import { getSound } from '@/data/sounds';
 import { useNow } from '@/hooks/useNow';
 import { useScreenReaderEnabled } from '@/hooks/useScreenReader';
 import { localDay, shouldShowQuiet, useQuietPhone } from '@/safety/quietPhone';
@@ -98,6 +99,7 @@ export default function PlayerScreen() {
     );
   }
 
+  const toneInfo = getSound(sound.id);
   const fading =
     playing &&
     timer.kind === 'countdown' &&
@@ -142,6 +144,11 @@ export default function PlayerScreen() {
             ) : program.kind === 'shuffle' && !finished ? (
               <AppText variant="caption" tone="secondary" accessibilityLiveRegion="polite">
                 Playing now: {sound.name}
+              </AppText>
+            ) : program.kind === 'single' && toneInfo?.description ? (
+              // Harmony Tones: the frequency and a gentle line about the sound.
+              <AppText variant="caption" tone="secondary">
+                {toneInfo.frequencyLabel} · {toneInfo.description}
               </AppText>
             ) : null}
           </View>

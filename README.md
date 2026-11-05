@@ -267,6 +267,22 @@ produces identical files and no licence is needed.
   About 22 MB of WAV in total (WAV, because compressed formats leave a gap at
   the loop point on some phones).
 
+- **Harmony Tones:** `src/audio/harmony.ts` and the 432 Hz pieces in
+  `music.ts`, written by `npm run harmony` (`scripts/generate-harmony.ts`)
+  into `assets/sounds/harmony/`: 174, 396, 528 and 639 Hz tones, an Om
+  drone (136.1 Hz), a soft singing bowl, and music box and slow piano
+  lullabies tuned to A = 432 Hz (72 and 60 bpm). Never a bare sine: quiet
+  harmonics, faint slowly drifting voices, a very shallow 10 s swell, a
+  1.4–1.6 kHz low-pass and a texture far underneath. Mono (no binaural or
+  isochronic content). Levelled to −25 LUFS, a little under the music.
+  Cards show the frequency as a quiet subtitle; the ⓘ on the category opens
+  "About these tones". No health claims anywhere: a test fails if words like
+  "heal", "cure", "toxin", "DNA" or "therapy" appear in app text, docs for
+  the stores, or code comments.
+- **Ready-made mixes:** "Rain + 528", "Ocean + Singing Bowl" and "Brown
+  Noise + 174" are saved mixes like the parent's own (edit or delete). Added
+  once, on a new install or when updating; a deleted one never comes back.
+
 The catalogue is `src/data/sounds.ts`, with every file listed in
 [`assets/sounds/LICENSES.md`](./assets/sounds/LICENSES.md). Any sound can
 later be swapped for a recorded CC0 or royalty-free one; until its audio is

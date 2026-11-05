@@ -44,7 +44,7 @@ export function SoundCard({
       <Pressable
         onPress={onPress}
         accessibilityRole="button"
-        accessibilityLabel={`${sound.name}${sound.placeholder ? ', placeholder sound' : ''}`}
+        accessibilityLabel={`${sound.name}${sound.frequencyLabel ? `, ${sound.frequencyLabel}` : ''}${sound.placeholder ? ', placeholder sound' : ''}`}
         accessibilityHint={active ? 'Opens the player' : 'Plays with a 10 minute timer'}
         accessibilityState={{ selected: active }}
         style={({ pressed }) => [
@@ -68,6 +68,11 @@ export function SoundCard({
         ) : detail ? (
           <AppText variant="caption" tone="muted">
             {detail}
+          </AppText>
+        ) : sound.frequencyLabel ? (
+          // Harmony Tones: the frequency is a quiet subtitle, never the headline.
+          <AppText variant="caption" tone="muted">
+            {sound.frequencyLabel}
           </AppText>
         ) : null}
       </Pressable>

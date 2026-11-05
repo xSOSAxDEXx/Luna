@@ -13,7 +13,9 @@ export type SoundIcon =
   | 'train'
   | 'note'
   | 'star'
-  | 'book';
+  | 'book'
+  | 'tone'
+  | 'bowl';
 
 export type Sound = PlayableSound & {
   /** 'mine' is the parent's own recordings (My Sounds). */
@@ -31,6 +33,12 @@ export type Sound = PlayableSound & {
   placeholder: boolean;
   /** A colour the parent picked (recordings); otherwise the category's tint. */
   tint?: string;
+  /** Harmony Tones: the frequency, shown as a small subtitle (e.g. "528 Hz"). */
+  frequencyLabel?: string;
+  /** Harmony Tones: "A432" when the music is tuned to A = 432 Hz. */
+  tuning?: 'A432';
+  /** Harmony Tones: one gentle line about the sound (player and info sheet). */
+  description?: string;
 };
 
 export const CATEGORIES: { key: SoundCategory; title: string }[] = [
@@ -38,6 +46,7 @@ export const CATEGORIES: { key: SoundCategory; title: string }[] = [
   { key: 'nature', title: 'Nature' },
   { key: 'rhythmic', title: 'Rhythmic' },
   { key: 'music', title: 'Music' },
+  { key: 'harmony', title: 'Harmony Tones' },
 ];
 
 export const SOUNDS: Sound[] = [
@@ -214,6 +223,98 @@ export const SOUNDS: Sound[] = [
     file: 'music/harp.wav',
     source: require('@/assets/sounds/music/harp.wav'),
     placeholder: false,
+  },
+  // Harmony Tones: synthesised in code (src/audio/harmony.ts, music.ts)
+  {
+    id: 'harmony-174',
+    name: 'Deep Calm',
+    category: 'harmony',
+    icon: 'tone',
+    file: 'harmony/harmony-174.wav',
+    source: require('@/assets/sounds/harmony/harmony-174.wav'),
+    placeholder: false,
+    frequencyLabel: '174 Hz',
+    description: 'A deep, grounding hum',
+  },
+  {
+    id: 'harmony-396',
+    name: 'Gentle Release',
+    category: 'harmony',
+    icon: 'tone',
+    file: 'harmony/harmony-396.wav',
+    source: require('@/assets/sounds/harmony/harmony-396.wav'),
+    placeholder: false,
+    frequencyLabel: '396 Hz',
+    description: 'Soft and steady',
+  },
+  {
+    id: 'harmony-528',
+    name: 'Heart Tone',
+    category: 'harmony',
+    icon: 'tone',
+    file: 'harmony/harmony-528.wav',
+    source: require('@/assets/sounds/harmony/harmony-528.wav'),
+    placeholder: false,
+    frequencyLabel: '528 Hz',
+    description: 'The most popular Solfeggio tone, softened',
+  },
+  {
+    id: 'harmony-639',
+    name: 'Together',
+    category: 'harmony',
+    icon: 'tone',
+    file: 'harmony/harmony-639.wav',
+    source: require('@/assets/sounds/harmony/harmony-639.wav'),
+    placeholder: false,
+    frequencyLabel: '639 Hz',
+    description: 'Warm and close',
+  },
+  {
+    id: 'lullaby-432-musicbox',
+    name: 'Music Box',
+    category: 'harmony',
+    icon: 'star',
+    file: 'harmony/lullaby-432-musicbox.wav',
+    source: require('@/assets/sounds/harmony/lullaby-432-musicbox.wav'),
+    placeholder: false,
+    frequencyLabel: '432 Hz',
+    tuning: 'A432',
+    description: 'A classic lullaby, tuned a little lower',
+  },
+  {
+    id: 'lullaby-432-piano',
+    name: 'Slow Piano',
+    category: 'harmony',
+    icon: 'note',
+    file: 'harmony/lullaby-432-piano.wav',
+    source: require('@/assets/sounds/harmony/lullaby-432-piano.wav'),
+    placeholder: false,
+    frequencyLabel: '432 Hz',
+    tuning: 'A432',
+    description: 'Slow, simple, predictable',
+  },
+  {
+    id: 'bowl-soft',
+    name: 'Singing Bowl',
+    category: 'harmony',
+    icon: 'bowl',
+    file: 'harmony/bowl-soft.wav',
+    source: require('@/assets/sounds/harmony/bowl-soft.wav'),
+    placeholder: false,
+    frequencyLabel: '216 Hz',
+    tuning: 'A432',
+    description: 'Gentle rings that fade slowly',
+  },
+  {
+    id: 'om-drone',
+    name: 'Om Drone',
+    category: 'harmony',
+    icon: 'tone',
+    file: 'harmony/om-drone.wav',
+    source: require('@/assets/sounds/harmony/om-drone.wav'),
+    placeholder: false,
+    frequencyLabel: '136.1 Hz',
+    description: 'A low, hummed tone',
   },
 ];
 

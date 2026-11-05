@@ -108,7 +108,7 @@ describe('one tap to calm', () => {
     expect(await screen.findByRole('header', { name: 'Favorites' })).toBeOnTheScreen();
     expect(useSettings.getState().favorites).toEqual(['rain']);
     // Rain now appears twice: in Favorites and in Nature.
-    expect(screen.getAllByRole('button', { name: /^Rain/ })).toHaveLength(2);
+    expect(screen.getAllByRole('button', { name: 'Rain' })).toHaveLength(2);
 
     const [unfavorite] = screen.getAllByRole('button', { name: 'Remove Rain from favorites' });
     await fireEvent.press(unfavorite);
