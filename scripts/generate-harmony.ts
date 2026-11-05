@@ -6,8 +6,9 @@
  *   npm run harmony -- 528     (only files whose name matches)
  *
  * Deterministic (fixed seeds) and committed, so builds never need to run
- * this. Levels match the music in the library (about −23 LUFS, checked with
- * ffmpeg's EBU R128 meter), so nothing jumps in volume when switching.
+ * this. Levels sit a little under the music in the library (about −25 LUFS,
+ * checked with ffmpeg's EBU R128 meter): steady tones feel louder than their
+ * measured level, so a touch quieter keeps them gentle.
  */
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -33,11 +34,11 @@ type Tone = {
 };
 
 const TONES: Tone[] = [
-  { file: 'harmony-174.wav', rms: 0.079, seed: 174, render: harmony174 },
-  { file: 'harmony-396.wav', rms: 0.076, seed: 396, render: harmony396 },
-  { file: 'harmony-528.wav', rms: 0.076, seed: 528, render: harmony528 },
-  { file: 'harmony-639.wav', rms: 0.074, seed: 639, render: harmony639 },
-  { file: 'om-drone.wav', rms: 0.079, seed: 1361, render: omDrone },
+  { file: 'harmony-174.wav', rms: 0.063, seed: 174, render: harmony174 },
+  { file: 'harmony-396.wav', rms: 0.061, seed: 396, render: harmony396 },
+  { file: 'harmony-528.wav', rms: 0.06, seed: 528, render: harmony528 },
+  { file: 'harmony-639.wav', rms: 0.059, seed: 639, render: harmony639 },
+  { file: 'om-drone.wav', rms: 0.064, seed: 1361, render: omDrone },
 ];
 
 const only = process.argv[2];

@@ -41,13 +41,13 @@ describe.each(TONES)('%s', (_name, render) => {
     expect(Math.abs(loop[0] - loop[N - 1])).toBeLessThan(typical * 4);
   });
 
-  it('swells gently, never fading to silence or pulsing hard', () => {
+  it('swells very gently: no pulsing, never fading away', () => {
     const win = FS / 2;
     const levels: number[] = [];
     for (let i = 0; i + win <= N; i += win) levels.push(rms(loop.subarray(i, i + win)));
     const rangeDb = 20 * Math.log10(Math.max(...levels) / Math.min(...levels));
-    expect(rangeDb).toBeGreaterThan(1);
-    expect(rangeDb).toBeLessThan(10);
+    expect(rangeDb).toBeGreaterThan(0.5);
+    expect(rangeDb).toBeLessThan(4);
   });
 
   it('is the same every time (fixed seed)', () => {
