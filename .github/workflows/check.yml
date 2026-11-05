@@ -1,0 +1,46 @@
+# Runs on every push and pull request:
+# - `npm run check`: typecheck, lint, format and tests;
+# - regenerates every generated file (sounds, privacy policy) and fails if
+#   anything differs from what's committed, so the committed WAVs and the
+#   policy pages can't drift from the code that makes them.
+name: Check
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck, lint, format, tests
+        run: npm run check
+
+      - name: Generated files are up to date
+        run: |
+          npm run noise
+          npm run harmony
+          npm run privacy
+          if ! git diff --quiet; then
+            echo "::error::Generated files differ from the committed ones. Run npm run noise, npm run harmony and npm run privacy, then commit."
+            git diff --stat
+            exit 1
+          fi

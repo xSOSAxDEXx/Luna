@@ -263,7 +263,8 @@ produces identical files and no licence is needed.
   original; the music box plays "Twinkle, Twinkle" (traditional, public
   domain). Morning birds and light chimes (`chimes.ts`) for the wake-up.
 - **Levels:** balanced by ear-weighted loudness (ffmpeg's EBU R128 meter)
-  against the pink noise: about −21.5 LUFS for steady sounds, −23 for music.
+  against the pink noise; `npm run loudness` re-checks every sound against
+  its target: about −21.5 LUFS for steady sounds, −23 for music.
   About 22 MB of WAV in total (WAV, because compressed formats leave a gap at
   the loop point on some phones).
 
@@ -289,6 +290,14 @@ later be swapped for a recorded CC0 or royalty-free one; until its audio is
 ready a sound can be marked `placeholder: true` to show a **Placeholder**
 tag. Tests check every file exists and has a licence row, and that each
 synthesised sound is soft, loops without a click, and is repeatable.
+
+## Checks on every push
+
+`.github/workflows/check.yml` runs on every push and pull request:
+`npm run check` (typecheck, lint, format, tests), then regenerates every
+generated file (`npm run noise`, `npm run harmony`, `npm run privacy`) and
+fails if anything differs from what's committed. Known debt and the plan to
+pay it down: [`docs/tech-debt.md`](./docs/tech-debt.md).
 
 ## Testing on a phone
 

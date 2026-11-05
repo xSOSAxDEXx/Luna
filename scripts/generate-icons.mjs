@@ -8,6 +8,7 @@
  * Outputs are committed so builds never need to run this. Re-run it after
  * changing the mark or the sky colours below.
  */
+import { Buffer } from 'node:buffer';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

@@ -57,7 +57,8 @@
     "icons": "node scripts/generate-icons.mjs",
     "noise": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/generate-noise.ts",
     "privacy": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/generate-privacy.ts",
-    "harmony": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/generate-harmony.ts"
+    "harmony": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/generate-harmony.ts",
+    "loudness": "node scripts/measure-loudness.mjs"
   },
   "private": true,
   "jest": {

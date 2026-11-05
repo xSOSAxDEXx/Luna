@@ -1,7 +1,9 @@
-# Android device testing (build step 3)
+# Android device testing
 
-These checks prove that Luna Beatzzz keeps playing, and stops on time, with
-the screen off, which can't be tested on a computer. Each test says what
+These checks cover what can't be tested on a computer: playing and stopping
+on time with the screen off (tests 1–10), mixes, shuffle and the wake-up
+(11–14), recording and backup (15–19), the calm and safety features
+(20–23) and how every sound actually sounds on a phone (24–25). Each test says what
 should happen. If something else happens, note it and share the log
 (Settings → Playback check → **Share log**).
 
